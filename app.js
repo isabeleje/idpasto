@@ -28,7 +28,7 @@ app.set('view engine', 'ejs');
 // compress all responses
 app.use(compression({ threshold: 0 }));
 //allow cors on localhost
-app.use(cors({origin: '*'})); // disable when deploy to production
+app.use(cors()); // disable when deploy to production
 app.use(express.static(config.app.publicDir))
 app.use(express.json()) // Parses json, multi-part (file), url-encoded
 app.use(express.urlencoded({ extended:true, limit:'50mb' }));
