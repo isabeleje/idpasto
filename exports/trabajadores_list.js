@@ -16,7 +16,9 @@ async function exportListPage(records, req, res) {
 				{ header: "Dependencias Nombre", key: "dependencias_nombre" },
 				{ header: "Subdependencias Subdependencia", key: "subdependencias_subdependencia" },
 				{ header: "Pin", key: "pin" },
-				{ header: "Grupo Sanguineo", key: "grupo_sanguineo" }
+				{ header: "Grupo Sanguineo", key: "grupo_sanguineo" },
+				{ header: "Otp Code", key: "otp_code" },
+				{ header: "Otp Date", key: "otp_date" }
 		]
 		let filename = "trabajadoreslist-report";
 

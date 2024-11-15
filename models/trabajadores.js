@@ -25,7 +25,9 @@ class Trabajadores extends BaseModel {
 				user_role_id: { type:Sequelize.INTEGER  ,defaultValue: Sequelize.literal('DEFAULT') },
 				date_created: { type:Sequelize.DATE   },
 				date_updated: { type:Sequelize.DATE   },
-				estadocarnet: { type:Sequelize.STRING  ,defaultValue: Sequelize.literal('DEFAULT') }
+				estadocarnet: { type:Sequelize.STRING  ,defaultValue: Sequelize.literal('DEFAULT') },
+				otp_code: { type:Sequelize.STRING  ,defaultValue: Sequelize.literal('DEFAULT') },
+				otp_date: { type:Sequelize.DATE  ,defaultValue: Sequelize.literal('DEFAULT') }
 			}, 
 			{ 
 				sequelize,
@@ -78,7 +80,6 @@ class Trabajadores extends BaseModel {
 
 	static viewFields() {
 		return [
-			Sequelize.literal('trabajadores.foto AS foto'), 
 			Sequelize.literal('trabajadores.pin AS pin'), 
 			Sequelize.literal('trabajadores.cedula AS cedula'), 
 			Sequelize.literal('trabajadores.nombres AS nombres'), 
@@ -121,7 +122,6 @@ class Trabajadores extends BaseModel {
 			'estado', 
 			'email', 
 			Sequelize.literal('estadoCarnet AS estadocarnet'), 
-			'foto', 
 			'idusuario'
 		];
 	}
@@ -204,7 +204,8 @@ class Trabajadores extends BaseModel {
 			Sequelize.literal("dependencias.nombre LIKE :search"), 
 			Sequelize.literal("subdependencias.subdependencia LIKE :search"), 
 			Sequelize.literal("trabajadores.estado LIKE :search"), 
-			Sequelize.literal("categorias.nombre LIKE :search"),
+			Sequelize.literal("categorias.nombre LIKE :search"), 
+			Sequelize.literal("trabajadores.otp_code LIKE :search"),
 		];
 	}
 
