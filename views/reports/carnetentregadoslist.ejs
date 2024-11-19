@@ -1,0 +1,26 @@
+
+<div id="report-title"><h1>Carnetentregados</h1></div>
+<table class="table table-sm table-striped">
+    <thead>
+        <tr>
+            <th>Cedula</th>
+            <th>Nombres</th>
+            <th>Cargo</th>
+            <th>Dependencia</th>
+            <th>Subdependencia</th>
+            <th>Foto</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% records.forEach(function(record){ %>
+        <tr>
+            <td><%= record.cedula %></td>
+            <td><%= record.nombres %></td>
+            <td><%= record.cargo %></td>
+            <td><%= record.dependencia %></td>
+            <td><%= record.subdependencia %></td>
+            <td><%= record.foto %></td>
+        </tr>
+        <% }); %>
+    </tbody>
+</table>

@@ -118,10 +118,10 @@ class Trabajadores extends BaseModel {
 			'apellidos', 
 			'cargo', 
 			'grupo_sanguineo', 
-			'observaciones', 
 			'estado', 
 			'email', 
 			Sequelize.literal('estadoCarnet AS estadocarnet'), 
+			'observaciones', 
 			'idusuario'
 		];
 	}
@@ -168,9 +168,8 @@ class Trabajadores extends BaseModel {
 		];
 	}
 
-	static vistaconsultaFields() {
+	static vistaidFields() {
 		return [
-			Sequelize.literal('trabajadores.foto AS foto'), 
 			Sequelize.literal('trabajadores.pin AS pin'), 
 			Sequelize.literal('trabajadores.cedula AS cedula'), 
 			Sequelize.literal('trabajadores.nombres AS nombres'), 

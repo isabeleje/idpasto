@@ -1,0 +1,34 @@
+
+<div id="report-title"><h1>Pendienteimpresion</h1></div>
+<table class="table table-sm table-striped">
+    <thead>
+        <tr>
+            <th>Foto</th>
+            <th>Nombres</th>
+            <th>Apellidos</th>
+            <th>Cedula</th>
+            <th>Cargo</th>
+            <th>Dependencia</th>
+            <th>Subdependencia</th>
+            <th>Qr</th>
+            <th>Pin</th>
+            <th>Grupo Sanguineo</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% records.forEach(function(record){ %>
+        <tr>
+            <td><%= record.foto %></td>
+            <td><%= record.nombres %></td>
+            <td><%= record.apellidos %></td>
+            <td><%= record.cedula %></td>
+            <td><%= record.cargo %></td>
+            <td><%= record.dependencia %></td>
+            <td><%= record.subdependencia %></td>
+            <td><%= record.qr %></td>
+            <td><%= record.pin %></td>
+            <td><%= record.grupo_sanguineo %></td>
+        </tr>
+        <% }); %>
+    </tbody>
+</table>

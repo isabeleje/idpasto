@@ -202,27 +202,51 @@ router.get('/getcount_subdependencias', async (req, res) => {
 
 
  /**
- * Route to get barchart_estadodeimpresin records
- * @GET /components_data/barchart_estadodeimpresin
+ * Route to getcount_entregados value
+ * @GET /components_data/getcount_entregados
  */
-router.get('/barchart_estadodeimpresin',  async (req, res) => {
-	let chartData = { labels:[], datasets:[] };
+router.get('/getcount_entregados', async (req, res) => {
 	try{
-		let sqltext = `SELECT trabajadores.estadocarnet, COUNT(*) AS cantidad FROM trabajadores GROUP BY trabajadores.estadocarnet` ;
+		let sqltext = `SELECT COUNT(*) AS num FROM carnetentregados` ;
 		
-		let records = await DB.rawQueryList(sqltext);
-		chartData['labels'] = records.map(function(v){ return v.estadocarnet });
-		let dataset1 = {
-			data: records.map(function(v){ return parseFloat(v.cantidad) }),
-			label: "",
-			backgroundColor: ["#DC3545","#28A745","#0D6EFD","purple"], 
-			borderColor: "", 
-			borderWidth: "",
-		};
-		chartData.datasets.push(dataset1);
-		return res.ok(chartData) ;
+		let value = await DB.rawQueryValue(sqltext);
+		return res.ok(value.toString());
 	}
-	catch(err) {
+	catch(err){
+		return res.serverError(err);
+	}
+});
+
+
+ /**
+ * Route to getcount_pendientesentrega value
+ * @GET /components_data/getcount_pendientesentrega
+ */
+router.get('/getcount_pendientesentrega', async (req, res) => {
+	try{
+		let sqltext = `SELECT COUNT(*) AS num FROM pendientesentrega` ;
+		
+		let value = await DB.rawQueryValue(sqltext);
+		return res.ok(value.toString());
+	}
+	catch(err){
+		return res.serverError(err);
+	}
+});
+
+
+ /**
+ * Route to getcount_pendientesimpresion value
+ * @GET /components_data/getcount_pendientesimpresion
+ */
+router.get('/getcount_pendientesimpresion', async (req, res) => {
+	try{
+		let sqltext = `SELECT COUNT(*) AS num FROM pendienteimpresion` ;
+		
+		let value = await DB.rawQueryValue(sqltext);
+		return res.ok(value.toString());
+	}
+	catch(err){
 		return res.serverError(err);
 	}
 });

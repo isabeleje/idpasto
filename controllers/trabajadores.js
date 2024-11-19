@@ -184,7 +184,7 @@ router.post('/add/',
 		modeldata.contrasena = utils.passwordHash(modeldata.contrasena);
 		
 		// set default role for user
-		const roleId =  await DB.Roles.findValue('role_id', {role_name: 'Admin'});
+		const roleId =  await DB.Roles.findValue('role_id', {role_name: 'User'});
 		modeldata['user_role_id'] = roleId;
 		
 		// check if email already exist.
@@ -449,6 +449,54 @@ router.post('/editimpresion/:recid',
 		}
 		await DB.Trabajadores.update(modeldata, {where: where});
 		return res.ok(modeldata);
+	}
+	catch(err){
+		return res.serverError(err);
+	}
+});
+
+
+/**
+ * Route to view Trabajadores record
+ * @GET /trabajadores/view/{recid}
+ */
+router.get(['/vistaid/:recid'], async (req, res) => {
+	try{
+		const recid = req.params.recid || null;
+		const query = {}
+		const where = {}
+		const joinTables = []; // hold list of join tables
+		joinTables.push({
+			model: DB.Categorias,
+			required: true,
+			as: 'categorias',
+			attributes: [], //already set via model class
+		})
+		joinTables.push({
+			model: DB.Dependencias,
+			required: true,
+			as: 'dependencias',
+			attributes: [], //already set via model class
+		})
+		joinTables.push({
+			model: DB.Subdependencias,
+			required: true,
+			as: 'subdependencias',
+			attributes: [], //already set via model class
+		})
+		query.include = joinTables;
+		where[DB.op.and] = DB.raw('trabajadores.idusuario = :recid');
+		query.replacements = {
+			recid
+		}
+		query.raw = true;
+		query.where = where;
+		query.attributes = DB.Trabajadores.vistaidFields();
+		let record = await DB.Trabajadores.findOne(query);
+		if(!record){
+			return res.notFound();
+		}
+		return res.ok(record);
 	}
 	catch(err){
 		return res.serverError(err);
