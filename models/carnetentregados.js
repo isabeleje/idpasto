@@ -40,8 +40,7 @@ class Carnetentregados extends BaseModel {
 			Sequelize.literal("nombres LIKE :search"), 
 			Sequelize.literal("cargo LIKE :search"), 
 			Sequelize.literal("dependencia LIKE :search"), 
-			Sequelize.literal("subdependencia LIKE :search"), 
-			Sequelize.literal("foto LIKE :search"),
+			Sequelize.literal("subdependencia LIKE :search"),
 		];
 	}
 
