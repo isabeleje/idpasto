@@ -12,6 +12,7 @@ import DB from '../models/db.js';
 const router = Router();
 
 
+
 /**
  * Route to login user using credential
  * @POST /auth/login
@@ -27,6 +28,7 @@ router.post('/login', [
 		if(!user){
 			return res.unauthorized("Nombre de usuario o contraseña no correctos");
 		}
+
 		if(!utils.passwordVerify(password, user.contrasena)){
 			return res.unauthorized("Nombre de usuario o contraseña no correctos");
 		}
@@ -35,11 +37,13 @@ router.post('/login', [
 		
 		let loginData = await getUserLoginData(user);
 		return res.ok(loginData);
+
 	}
 	catch(err){
 		return res.serverError(err);
 	}
 });
+
 
 
 
@@ -103,9 +107,18 @@ router.post('/resetpassword', [
 		return res.ok("Password changed");
 	}
 	catch(err){
-		return res.serverError(err);
+		if (err instanceof jwt.TokenExpiredError) {
+			return res.badRequest("Token has expired");
+		} 
+		else if (err instanceof jwt.JsonWebTokenError) {
+			return res.badRequest("Invalid token");
+		} 
+		else {
+			return res.serverError(err);
+		}
 	}
 });
+
 
 
 /**
@@ -113,7 +126,7 @@ router.post('/resetpassword', [
 */
 async function sendPasswordResetLink(user){
 	let token = generateUserToken(user);
-	let resetlink = `${config.app.frontendUrl}/#/index/resetpassword?token=${token}`;
+	let resetlink = `${config.app.frontendUrl}/index/resetpassword?token=${token}`;
 	let username = user.usuario;
 	let email = user.email;
 	let mailtitle = 'Password Reset';
@@ -143,6 +156,7 @@ async function getUserLoginData(user){
 }
 
 
+
 /**
  * Generate user auth token
  * @param {object} user - current user
@@ -155,17 +169,13 @@ function generateUserToken(user){
 }
 
 
+
 /**
  * Get userid from jwt token
  * @param {string} token
  */
 function getUserIDFromJwt(token){
-	try {
-		let decoded = jwt.verify(token, config.auth.userTokenSecret);
-		return decoded.sub
-	}
-	catch (err) {
-		throw new Error(err);
-	}
+	let decoded = jwt.verify(token, config.auth.userTokenSecret);
+	return decoded.sub;
 }
 export default router;

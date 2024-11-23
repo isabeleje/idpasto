@@ -9,6 +9,7 @@ const router = Router();
 
 
 
+
 /**
  * Route to list subdependencias records
  * @GET /subdependencias/index/{fieldname}/{fieldvalue}
@@ -55,7 +56,7 @@ router.get(['/', '/index/:fieldname?/:fieldvalue?'], async (req, res) => {
  * Route to view Subdependencias record
  * @GET /subdependencias/view/{recid}
  */
-router.get(['/view/:recid'], async (req, res) => {
+router.get('/view/:recid', async (req, res) => {
 	try{
 		const recid = req.params.recid || null;
 		const query = {}

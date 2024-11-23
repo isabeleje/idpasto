@@ -1,8 +1,11 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
+
 import utils from '../helpers/utils.js';
 import uploader from '../helpers/uploader.js';
+
 import Rbac from '../helpers/rbac.js';
+
 import validateFormData from '../helpers/validate_form.js';
 import DB from '../models/db.js';
 const router = Router();
@@ -110,6 +113,7 @@ router.post('/changepassword' ,
 	try{
 		let oldPassword = req.body.oldpassword;
 		let newPassword = req.body.newpassword;
+
 		let userId = req.user.idusuario;
 		let query = {};
 		let where = {

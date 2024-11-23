@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import csv from 'fast-csv';
+
 import { body } from 'express-validator';
 import { fileUploadMiddleware } from '../helpers/upload_middleware.js';
 import validateFormData from '../helpers/validate_form.js';
@@ -7,6 +8,7 @@ import DB from '../models/db.js';
 
 
 const router = Router();
+
 
 
 
@@ -59,7 +61,7 @@ router.get(['/', '/index/:fieldname?/:fieldvalue?'], async (req, res) => {
  * csv file must contain table header on the first line.
  * @GET /roles/importdata
  */
-router.post('/importdata', fileUploadMiddleware('import_data'), async (req, res, next) => {
+router.post('/importdata', fileUploadMiddleware('importdata'), async (req, res, next) => {
 	if(req.files){	// files uploaded
 		var uploadedPaths = req.files.map(function(v) {
 			return v.path;
@@ -69,7 +71,10 @@ router.post('/importdata', fileUploadMiddleware('import_data'), async (req, res,
 				let records = [];
 				csv.fromPath(fpath, {headers: true, ignoreEmpty: true}).on("data", function(data){
 					if(data){
-						records.push(data);
+						const modeldata = {
+							role_name: data['role_name']
+						}
+						records.push(modeldata);
 					}
 				}).on("end", async() => {
 					try{
@@ -94,7 +99,7 @@ router.post('/importdata', fileUploadMiddleware('import_data'), async (req, res,
  * Route to view Roles record
  * @GET /roles/view/{recid}
  */
-router.get(['/view/:recid'], async (req, res) => {
+router.get('/view/:recid', async (req, res) => {
 	try{
 		const recid = req.params.recid || null;
 		const query = {}

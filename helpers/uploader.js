@@ -4,14 +4,11 @@ import fs from 'fs';
 import multer from 'multer';
 import crypto from 'crypto';
 import mimetype from 'mime-types';
-import multerS3 from 'multer-s3';
-import { S3Client } from '@aws-sdk/client-s3';
 import config from '../config.js';
-
 const publicDir = config.app.publicDir;
 const tempDir = config.upload.tempDir;
 
-class Uploader {
+class FileUploader {
 	uploadSettings = {};
 	/**
 	 * move uploaded file from temp directory to destination
@@ -73,9 +70,6 @@ class Uploader {
 				}
 			}
 		}
-
-
-
 		return fileInfo;
 	}
 
@@ -91,7 +85,7 @@ class Uploader {
 		let filepath = path.join(this.uploadSettings.uploadDir, fileName);
 		filepath = filepath.replace(/\\/g, "/");
 
-		let fileurl = `${config.app.url}/${filepath}`;
+		let fileurl =config.app.url + filepath;
 		return { filepath, fileurl };
 	}
 
@@ -220,7 +214,7 @@ class Uploader {
 		return true;
 	}
 	
-	upload(fieldName, formName = 'file') {
+	upload(fieldName) {
 		this.uploadSettings = config.upload[fieldName];
 		const storage = multer.diskStorage({
 			destination: (req, file, callback) => {
@@ -244,47 +238,10 @@ class Uploader {
 				fileSize: Number(this.uploadSettings.maxFileSize) * 1024 * 1024,
 				files: Number(this.uploadSettings.maxFiles)
 			}
-		}).array(formName);
+		});
 		return upload;
-	}
-
-	s3upload(fieldName, formName = 'file') {
-		this.uploadSettings = config.upload[fieldName];
-		const s3 = new S3Client({
-			credentials: {
-				accessKeyId: config.s3.accessKeyId,
-				secretAccessKey: config.s3.secretAccessKey,
-			},
-			region: config.s3.region,
-		});
-		const limits = {
-			fileSize: Number(this.uploadSettings.maxFileSize) * 1024 * 1024,
-			files: Number(this.uploadSettings.maxFiles)
-		}
-
-		const upload = multer({
-			limits,
-			fileFilter: (req, file, callback) => {
-				if (!this.isAllowedExt(file)) {
-					return callback(new Error('file extension not allowed'));
-				}
-				callback(null, true);
-			},
-			storage: multerS3({
-				s3: s3,
-				bucket: config.s3.bucket,
-				metadata: (req, file, callback) => {
-					callback(null, { fieldName: file.fieldname });
-				},
-				key: (req, file, callback) => {
-					let fileName = this.getFileName(file);
-					callback(null, fileName);
-				}
-			})
-		});
-		return upload.array(formName);
 	}
 }
 
-const uploader = new Uploader();
+const uploader = new FileUploader();
 export default uploader;

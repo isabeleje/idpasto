@@ -35,9 +35,9 @@ export default {
 	},
 	upload: {
 		tempDir: "uploads/temp/",
-		import_data: {
+		importdata: {
 			filenameType: "timestamp",
-			extensions: "json,csv",
+			extensions: "csv",
 			limit: "10",
 			maxFileSize: "3",
 			returnFullpath: "false",

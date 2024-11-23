@@ -1,15 +1,20 @@
 import { Router } from 'express';
 import csv from 'fast-csv';
+import ejs from 'ejs';
 import { body } from 'express-validator';
+import config from '../config.js';
 import utils from '../helpers/utils.js';
 import uploader from '../helpers/uploader.js';
 import { fileUploadMiddleware } from '../helpers/upload_middleware.js';
+
+import mailer from '../helpers/mailer.js';
 import validateFormData from '../helpers/validate_form.js';
 import DB from '../models/db.js';
 import exportListPage from '../exports/trabajadores_list.js';
 
 
 const router = Router();
+
 
 
 
@@ -37,18 +42,21 @@ router.get(['/', '/index/:fieldname?/:fieldvalue?'], async (req, res) => {
 			as: 'categorias',
 			attributes: [], //already set via model class
 		})
+
 		joinTables.push({
 			model: DB.Dependencias,
 			required: true,
 			as: 'dependencias',
 			attributes: [], //already set via model class
 		})
+
 		joinTables.push({
 			model: DB.Subdependencias,
 			required: true,
 			as: 'subdependencias',
 			attributes: [], //already set via model class
 		})
+
 		query.include = joinTables;
 		let search = req.query.search;
 		if(search){
@@ -87,7 +95,7 @@ router.get(['/', '/index/:fieldname?/:fieldvalue?'], async (req, res) => {
  * csv file must contain table header on the first line.
  * @GET /trabajadores/importdata
  */
-router.post('/importdata', fileUploadMiddleware('import_data'), async (req, res, next) => {
+router.post('/importdata', fileUploadMiddleware('importdata'), async (req, res, next) => {
 	if(req.files){	// files uploaded
 		var uploadedPaths = req.files.map(function(v) {
 			return v.path;
@@ -97,7 +105,28 @@ router.post('/importdata', fileUploadMiddleware('import_data'), async (req, res,
 				let records = [];
 				csv.fromPath(fpath, {headers: true, ignoreEmpty: true}).on("data", function(data){
 					if(data){
-						records.push(data);
+						const modeldata = {
+							pin: data['pin'],
+							cedula: data['cedula'],
+							nombres: data['nombres'],
+							apellidos: data['apellidos'],
+							cargo: data['cargo'],
+							grupo_sanguineo: data['grupo_sanguineo'],
+							foto: data['foto'],
+							observaciones: data['observaciones'],
+							estado: data['estado'],
+							categoria_id: data['categoria_id'],
+							dependencia_id: data['dependencia_id'],
+							subdependencia_id: data['subdependencia_id'],
+							contrasena: data['contrasena'],
+							email: data['email'],
+							usuario: data['usuario'],
+							user_role_id: data['user_role_id'],
+							date_created: data['date_created'],
+							date_updated: data['date_updated'],
+							estadoCarnet: data['estadoCarnet']
+						}
+						records.push(modeldata);
 					}
 				}).on("end", async() => {
 					try{
@@ -122,7 +151,7 @@ router.post('/importdata', fileUploadMiddleware('import_data'), async (req, res,
  * Route to view Trabajadores record
  * @GET /trabajadores/view/{recid}
  */
-router.get(['/view/:recid'], async (req, res) => {
+router.get('/view/:recid', async (req, res) => {
 	try{
 		const recid = req.params.recid || null;
 		const query = {}
@@ -134,23 +163,27 @@ router.get(['/view/:recid'], async (req, res) => {
 			as: 'categorias',
 			attributes: [], //already set via model class
 		})
+
 		joinTables.push({
 			model: DB.Dependencias,
 			required: true,
 			as: 'dependencias',
 			attributes: [], //already set via model class
 		})
+
 		joinTables.push({
 			model: DB.Subdependencias,
 			required: true,
 			as: 'subdependencias',
 			attributes: [], //already set via model class
 		})
+
 		query.include = joinTables;
 		where[DB.op.and] = DB.raw('trabajadores.idusuario = :recid');
 		query.replacements = {
 			recid
 		}
+
 		query.raw = true;
 		query.where = where;
 		query.attributes = DB.Trabajadores.viewFields();
@@ -184,7 +217,7 @@ router.post('/add/',
 		modeldata.contrasena = utils.passwordHash(modeldata.contrasena);
 		
 		// set default role for user
-		const roleId =  await DB.Roles.findValue('role_id', {role_name: 'User'});
+		const roleId =  await DB.Roles.findValue('role_id', {role_name: 'Admin'});
 		modeldata['user_role_id'] = roleId;
 		
 		// check if email already exist.
@@ -274,12 +307,14 @@ router.post('/edit/:recid',
 		if(pinCount > 0){
 			return res.badRequest(`${modeldata.pin} already exist.`);
 		}
+
 		
 		// check if cedula already exist.
 		let cedulaCount = await DB.Trabajadores.count({where:{'cedula': modeldata.cedula, 'idusuario': {[DB.op.ne]: recid} }});
 		if(cedulaCount > 0){
 			return res.badRequest(`${modeldata.cedula} already exist.`);
 		}
+
 		
 		// check if usuario already exist.
 		let usuarioCount = await DB.Trabajadores.count({where:{'usuario': modeldata.usuario, 'idusuario': {[DB.op.ne]: recid} }});
@@ -342,7 +377,7 @@ router.get('/delete/:recid', async (req, res) => {
  * Route to list trabajadores records
  * @GET /trabajadores/index/{fieldname}/{fieldvalue}
  */
-router.get(['/impresion/:fieldname?/:fieldvalue?'], async (req, res) => {  
+router.get('/impresion/:fieldname?/:fieldvalue?', async (req, res) => {  
 	try{
 		const query = {};
 		let queryFilters = [];
@@ -361,18 +396,21 @@ router.get(['/impresion/:fieldname?/:fieldvalue?'], async (req, res) => {
 			as: 'categorias',
 			attributes: [], //already set via model class
 		})
+
 		joinTables.push({
 			model: DB.Dependencias,
 			required: true,
 			as: 'dependencias',
 			attributes: [], //already set via model class
 		})
+
 		joinTables.push({
 			model: DB.Subdependencias,
 			required: true,
 			as: 'subdependencias',
 			attributes: [], //already set via model class
 		})
+
 		query.include = joinTables;
 		let search = req.query.search;
 		if(search){
@@ -448,6 +486,7 @@ router.post('/editimpresion/:recid',
 			return res.notFound();
 		}
 		await DB.Trabajadores.update(modeldata, {where: where});
+		await sendMailOnRecordEditimpresion(record);
 		return res.ok(modeldata);
 	}
 	catch(err){
@@ -460,7 +499,7 @@ router.post('/editimpresion/:recid',
  * Route to view Trabajadores record
  * @GET /trabajadores/view/{recid}
  */
-router.get(['/vistaid/:recid'], async (req, res) => {
+router.get('/vistaid/:recid', async (req, res) => {
 	try{
 		const recid = req.params.recid || null;
 		const query = {}
@@ -472,23 +511,27 @@ router.get(['/vistaid/:recid'], async (req, res) => {
 			as: 'categorias',
 			attributes: [], //already set via model class
 		})
+
 		joinTables.push({
 			model: DB.Dependencias,
 			required: true,
 			as: 'dependencias',
 			attributes: [], //already set via model class
 		})
+
 		joinTables.push({
 			model: DB.Subdependencias,
 			required: true,
 			as: 'subdependencias',
 			attributes: [], //already set via model class
 		})
+
 		query.include = joinTables;
 		where[DB.op.and] = DB.raw('trabajadores.idusuario = :recid');
 		query.replacements = {
 			recid
 		}
+
 		query.raw = true;
 		query.where = where;
 		query.attributes = DB.Trabajadores.vistaidFields();
@@ -502,4 +545,28 @@ router.get(['/vistaid/:recid'], async (req, res) => {
 		return res.serverError(err);
 	}
 });
+async function sendMailOnRecordEditimpresion(record){
+	
+	const mailtitle = `Tu carnet se encuantra listo`;
+	const message = `Tu Carnet ya se encuentra listo, puedes retirarlo en la subsecretaria de sistemas d einformación CAM Anganoy `;
+	const recid = record['idusuario'];
+	const baseUrl = config.app.frontendUrl;
+	const recordLink = `${baseUrl}/#/trabajadores/view/${recid}`;
+	const viewData = { message, recordLink };
+	const mailbody = await ejs.renderFile("views/notifications/record_action_mail.ejs", viewData);
+	const recipient = `sipap@pasto.gov.co`;
+	const mailResult = await mailer.sendMail(recipient, mailtitle , mailbody);
+	
+	return mailResult;
+
+	/*
+	if(mailResult.messageId){
+		console.log("Email Sent");
+	}
+	else{
+		console.error(mailResult.error);
+	}
+	*/
+}
+
 export default router;

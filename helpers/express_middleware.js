@@ -49,9 +49,9 @@ export default function (app) {
 
 	app.response.generatePdf = async function (html, fileName, puppeteerConfig, mediaType = 'screen') {
 
-		const browser = await launch();
+		const browser = await launch({ headless: true });
 		const pages = await browser.pages();
-		
+
 		// reuse page if already opened.
 		browserPage = pages.length ? pages[0] : await browser.newPage();
 
@@ -64,7 +64,7 @@ export default function (app) {
 
 			// generate the PDF
 			const pdf = await browserPage.pdf(puppeteerConfig);
-			
+
 			await browserPage.close();
 			// Close the browser instance
 			await browser.close();
@@ -75,7 +75,7 @@ export default function (app) {
 		}
 		catch (err) {
 			console.error(err.message);
-		} 
+		}
 		finally {
 			await browserPage?.close().catch((err) => console.error(err.message));
 			await browser?.close().catch((err) => console.error(err.message));
@@ -87,5 +87,4 @@ export default function (app) {
 		const req = this;
 		writeToDBLog(req, record);
 	}
-
 }

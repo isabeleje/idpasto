@@ -47,7 +47,7 @@ class Categorias extends BaseModel {
 	static searchFields(){
 		return [
 			Sequelize.literal("nombre LIKE :search"), 
-			Sequelize.literal("id LIKE :search"),
+			Sequelize.literal("estado LIKE :search"),
 		];
 	}
 

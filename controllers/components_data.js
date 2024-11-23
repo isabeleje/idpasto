@@ -24,6 +24,7 @@ router.get('/trabajadores_email_exist/:fieldvalue', async (req, res) => {
 });
 
 
+
  /**
  * Route to check if field value already exist in a Trabajadores table
  * @GET /components_data/trabajadores_usuario_exist/{fieldvalue}
@@ -41,6 +42,7 @@ router.get('/trabajadores_usuario_exist/:fieldvalue', async (req, res) => {
 		return res.serverError(err);
 	}
 });
+
 
 
  /**
@@ -62,6 +64,7 @@ router.get('/trabajadores_pin_exist/:fieldvalue', async (req, res) => {
 });
 
 
+
  /**
  * Route to check if field value already exist in a Trabajadores table
  * @GET /components_data/trabajadores_cedula_exist/{fieldvalue}
@@ -81,6 +84,7 @@ router.get('/trabajadores_cedula_exist/:fieldvalue', async (req, res) => {
 });
 
 
+
  /**
  * Route to get categoria_id_option_list records
  * @GET /components_data/categoria_id_option_list
@@ -98,6 +102,7 @@ router.get('/categoria_id_option_list', async (req, res) => {
 });
 
 
+
  /**
  * Route to get dependencia_id_option_list records
  * @GET /components_data/dependencia_id_option_list
@@ -113,6 +118,7 @@ router.get('/dependencia_id_option_list', async (req, res) => {
 		return res.serverError(err);
 	}
 });
+
 
 
  /**
@@ -133,6 +139,7 @@ router.get('/subdependencia_id_option_list', async (req, res) => {
 });
 
 
+
  /**
  * Route to get user_role_id_option_list records
  * @GET /components_data/user_role_id_option_list
@@ -148,6 +155,7 @@ router.get('/user_role_id_option_list', async (req, res) => {
 		return res.serverError(err);
 	}
 });
+
 
 
  /**
@@ -167,6 +175,7 @@ router.get('/getcount_colaboradores', async (req, res) => {
 });
 
 
+
  /**
  * Route to getcount_dependencias value
  * @GET /components_data/getcount_dependencias
@@ -182,6 +191,7 @@ router.get('/getcount_dependencias', async (req, res) => {
 		return res.serverError(err);
 	}
 });
+
 
 
  /**
@@ -201,6 +211,7 @@ router.get('/getcount_subdependencias', async (req, res) => {
 });
 
 
+
  /**
  * Route to getcount_entregados value
  * @GET /components_data/getcount_entregados
@@ -218,6 +229,7 @@ router.get('/getcount_entregados', async (req, res) => {
 });
 
 
+
  /**
  * Route to getcount_pendientesentrega value
  * @GET /components_data/getcount_pendientesentrega
@@ -233,6 +245,7 @@ router.get('/getcount_pendientesentrega', async (req, res) => {
 		return res.serverError(err);
 	}
 });
+
 
 
  /**

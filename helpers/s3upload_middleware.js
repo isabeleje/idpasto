@@ -1,8 +1,7 @@
-
 import config from '../config.js';
-import uploader from './uploader.js';
+import uploader from './s3uploader.js';
 
-function fileUploadMiddleware(fieldName, fileFormName = 'file') {
+function s3UploadMiddleware(fieldName, fileFormName = 'file') {
     return function (req, res, next) {
         let uploadField = fieldName || req.params.fieldname;
         const uploadSettings = config.upload[uploadField];
@@ -16,7 +15,7 @@ function fileUploadMiddleware(fieldName, fileFormName = 'file') {
             }
             return next();
         });
-    }
+    };
 }
 
-export { fileUploadMiddleware };
+export { s3UploadMiddleware };

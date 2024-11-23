@@ -1,7 +1,10 @@
+
 import passport from 'passport';
 import Rbac from './rbac.js';
 import passportLogin from './passport-auth.js';
-const publicPages = ['auth', 'components_data', 'fileuploader', 's3uploader', 'trabajadores/view'];
+
+const publicPages = ['auth', 'components_data', 'fileuploader', 's3uploader', 'trabajadores/view','account'];
+
 async function passportJwtLogin (req, res, next) {
     passportLogin();
     passport.authenticate('jwt', async (err, user, info) => {
@@ -10,6 +13,7 @@ async function passportJwtLogin (req, res, next) {
     }
     )(req, res, next);
 }
+
 async function authMiddleware(req, res, next) {
     try {
         if (req.user) {
@@ -25,9 +29,11 @@ async function authMiddleware(req, res, next) {
 				case 'admin':
 					req.isAdmin = true;
 					break;
+
 				case 'user':
 					req.isUser = true;
 					break;
+
 				default:
 					req.isGuest = true;
 			}
@@ -36,6 +42,7 @@ async function authMiddleware(req, res, next) {
 		const page = arrPath[0];
 		const action = arrPath[1] || "index";
 		const pagePath = `${page}/${action}`;
+
 		const isPublicPage = publicPages.includes(pagePath) || publicPages.includes(page);
 		if (isPublicPage || req.pageAccess == Rbac.AUTHORIZED) {
             return next();

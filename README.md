@@ -2,6 +2,9 @@
 
 ### Generated with [RadSystems](https://radsystems.io)
 
+## Dev Requirements
+NodeJS version 20 and Above
+
 ## Project Structure
 
 - ```assets/*``` app resources such as: css, images, fonts.

@@ -7,6 +7,7 @@ const router = Router();
 
 
 
+
 /**
  * Route to list carnetentregados records
  * @GET /carnetentregados/index/{fieldname}/{fieldvalue}

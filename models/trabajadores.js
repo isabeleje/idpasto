@@ -116,9 +116,9 @@ class Trabajadores extends BaseModel {
 			'apellidos', 
 			'cargo', 
 			'grupo_sanguineo', 
-			'estado', 
 			'email', 
 			Sequelize.literal('estadoCarnet AS estadocarnet'), 
+			'estado', 
 			'observaciones', 
 			'idusuario'
 		];

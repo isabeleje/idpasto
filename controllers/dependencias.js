@@ -9,6 +9,7 @@ const router = Router();
 
 
 
+
 /**
  * Route to list dependencias records
  * @GET /dependencias/index/{fieldname}/{fieldvalue}
@@ -61,7 +62,7 @@ router.get(['/', '/index/:fieldname?/:fieldvalue?'], async (req, res) => {
  * Route to view Dependencias record
  * @GET /dependencias/view/{recid}
  */
-router.get(['/view/:recid'], async (req, res) => {
+router.get('/view/:recid', async (req, res) => {
 	try{
 		const recid = req.params.recid || null;
 		const query = {}
