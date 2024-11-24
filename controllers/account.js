@@ -64,6 +64,7 @@ router.post(['/edit'],
 		body('foto').optional({nullable: true}).not().isEmpty(),
 		body('grupo_sanguineo').optional({nullable: true}).not().isEmpty(),
 		body('email').optional({nullable: true}).not().isEmpty().isEmail(),
+		body('usuario').optional({nullable: true}).not().isEmpty(),
 	], validateFormData
 , async (req, res) => {
 	try{

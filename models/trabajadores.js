@@ -105,6 +105,7 @@ class Trabajadores extends BaseModel {
 			'foto', 
 			'grupo_sanguineo', 
 			'email', 
+			'usuario', 
 			'idusuario'
 		];
 	}
