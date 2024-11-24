@@ -1,13 +1,11 @@
 import { Router } from 'express';
 import csv from 'fast-csv';
-import ejs from 'ejs';
+
 import { body } from 'express-validator';
-import config from '../config.js';
+
 import utils from '../helpers/utils.js';
 import uploader from '../helpers/uploader.js';
 import { fileUploadMiddleware } from '../helpers/upload_middleware.js';
-
-import mailer from '../helpers/mailer.js';
 import validateFormData from '../helpers/validate_form.js';
 import DB from '../models/db.js';
 import exportListPage from '../exports/trabajadores_list.js';
@@ -287,6 +285,7 @@ router.post('/edit/:recid',
 		body('apellidos').optional({nullable: true}).not().isEmpty(),
 		body('grupo_sanguineo').optional({nullable: true}).not().isEmpty(),
 		body('foto').optional({nullable: true, checkFalsy: true}),
+		body('email').optional({nullable: true}).not().isEmpty().isEmail(),
 		body('cargo').optional({nullable: true}).not().isEmpty(),
 		body('categoria_id').optional({nullable: true}).not().isEmpty(),
 		body('dependencia_id').optional({nullable: true}).not().isEmpty(),
@@ -313,6 +312,13 @@ router.post('/edit/:recid',
 		let cedulaCount = await DB.Trabajadores.count({where:{'cedula': modeldata.cedula, 'idusuario': {[DB.op.ne]: recid} }});
 		if(cedulaCount > 0){
 			return res.badRequest(`${modeldata.cedula} already exist.`);
+		}
+
+		
+		// check if email already exist.
+		let emailCount = await DB.Trabajadores.count({where:{'email': modeldata.email, 'idusuario': {[DB.op.ne]: recid} }});
+		if(emailCount > 0){
+			return res.badRequest(`${modeldata.email} already exist.`);
 		}
 
 		
@@ -486,7 +492,6 @@ router.post('/editimpresion/:recid',
 			return res.notFound();
 		}
 		await DB.Trabajadores.update(modeldata, {where: where});
-		await sendMailOnRecordEditimpresion(record);
 		return res.ok(modeldata);
 	}
 	catch(err){
@@ -545,28 +550,4 @@ router.get('/vistaid/:recid', async (req, res) => {
 		return res.serverError(err);
 	}
 });
-async function sendMailOnRecordEditimpresion(record){
-	
-	const mailtitle = `Tu carnet se encuantra listo`;
-	const message = `Tu Carnet ya se encuentra listo, puedes retirarlo en la subsecretaria de sistemas d einformación CAM Anganoy `;
-	const recid = record['idusuario'];
-	const baseUrl = config.app.frontendUrl;
-	const recordLink = `${baseUrl}/#/trabajadores/view/${recid}`;
-	const viewData = { message, recordLink };
-	const mailbody = await ejs.renderFile("views/notifications/record_action_mail.ejs", viewData);
-	const recipient = `sipap@pasto.gov.co`;
-	const mailResult = await mailer.sendMail(recipient, mailtitle , mailbody);
-	
-	return mailResult;
-
-	/*
-	if(mailResult.messageId){
-		console.log("Email Sent");
-	}
-	else{
-		console.error(mailResult.error);
-	}
-	*/
-}
-
 export default router;

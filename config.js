@@ -26,7 +26,7 @@ export default {
 	},
 	mail: {
 		username:"sipap@pasto.gov.co",
-		password: "hijx orsz fmnj xtjr",
+		password: "bbpj qopj zicn sxgq",
 		senderemail:"sipap@pasto.gov.co",
 		sendername:"Subsecretaría de Sistemas de Información",
 		host: "smtp.gmail.com",
