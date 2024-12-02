@@ -209,4 +209,58 @@ router.get('/getcount_subdependencias', async (req, res) => {
 		return res.serverError(err);
 	}
 });
+
+
+
+ /**
+ * Route to getcount_totalentregados value
+ * @GET /components_data/getcount_totalentregados
+ */
+router.get('/getcount_totalentregados', async (req, res) => {
+	try{
+		let sqltext = `SELECT COUNT(*) AS num FROM carnetentregados` ;
+		
+		let value = await DB.rawQueryValue(sqltext);
+		return res.ok(value.toString());
+	}
+	catch(err){
+		return res.serverError(err);
+	}
+});
+
+
+
+ /**
+ * Route to getcount_pendientesdeentrega value
+ * @GET /components_data/getcount_pendientesdeentrega
+ */
+router.get('/getcount_pendientesdeentrega', async (req, res) => {
+	try{
+		let sqltext = `SELECT COUNT(*) AS num FROM pendientesentrega` ;
+		
+		let value = await DB.rawQueryValue(sqltext);
+		return res.ok(value.toString());
+	}
+	catch(err){
+		return res.serverError(err);
+	}
+});
+
+
+
+ /**
+ * Route to getcount_pendientesporimprimir value
+ * @GET /components_data/getcount_pendientesporimprimir
+ */
+router.get('/getcount_pendientesporimprimir', async (req, res) => {
+	try{
+		let sqltext = `SELECT COUNT(*) AS num FROM pendienteimpresion` ;
+		
+		let value = await DB.rawQueryValue(sqltext);
+		return res.ok(value.toString());
+	}
+	catch(err){
+		return res.serverError(err);
+	}
+});
 export default router;
