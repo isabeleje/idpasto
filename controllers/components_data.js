@@ -6,6 +6,24 @@ const router = Router();
 
 
  /**
+ * Route to get iddependencia_option_list records
+ * @GET /components_data/iddependencia_option_list
+ */
+router.get('/iddependencia_option_list', async (req, res) => {
+	try{
+		let sqltext = `SELECT  DISTINCT id AS value,nombre AS label FROM dependencias` ;
+		
+		let records = await DB.rawQueryList(sqltext);
+		return res.ok(records);
+	}
+	catch(err){
+		return res.serverError(err);
+	}
+});
+
+
+
+ /**
  * Route to check if field value already exist in a Trabajadores table
  * @GET /components_data/trabajadores_email_exist/{fieldvalue}
  */
@@ -92,24 +110,6 @@ router.get('/trabajadores_cedula_exist/:fieldvalue', async (req, res) => {
 router.get('/categoria_id_option_list', async (req, res) => {
 	try{
 		let sqltext = `SELECT  DISTINCT id AS value,nombre AS label FROM categorias` ;
-		
-		let records = await DB.rawQueryList(sqltext);
-		return res.ok(records);
-	}
-	catch(err){
-		return res.serverError(err);
-	}
-});
-
-
-
- /**
- * Route to get dependencia_id_option_list records
- * @GET /components_data/dependencia_id_option_list
- */
-router.get('/dependencia_id_option_list', async (req, res) => {
-	try{
-		let sqltext = `SELECT  DISTINCT id AS value,nombre AS label FROM dependencias` ;
 		
 		let records = await DB.rawQueryList(sqltext);
 		return res.ok(records);

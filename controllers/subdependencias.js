@@ -83,6 +83,7 @@ router.get('/view/:recid', async (req, res) => {
  */
 router.post('/add/', 
 	[
+		body('iddependencia').not().isEmpty(),
 		body('subdependencia').not().isEmpty(),
 		body('estado').not().isEmpty(),
 	], validateFormData
@@ -133,7 +134,7 @@ router.get('/edit/:recid', async (req, res) => {
  */
 router.post('/edit/:recid', 
 	[
-		body('iddependencia').optional({nullable: true}).not().isEmpty().isNumeric(),
+		body('iddependencia').optional({nullable: true}).not().isEmpty(),
 		body('subdependencia').optional({nullable: true}).not().isEmpty(),
 		body('estado').optional({nullable: true}).not().isEmpty(),
 	], validateFormData
