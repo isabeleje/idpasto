@@ -285,6 +285,7 @@ router.post('/edit/:recid',
 		body('apellidos').optional({nullable: true}).not().isEmpty(),
 		body('grupo_sanguineo').optional({nullable: true}).not().isEmpty(),
 		body('foto').optional({nullable: true, checkFalsy: true}),
+		body('email').optional({nullable: true}).not().isEmpty().isEmail(),
 		body('cargo').optional({nullable: true}).not().isEmpty(),
 		body('categoria_id').optional({nullable: true}).not().isEmpty(),
 		body('dependencia_id').optional({nullable: true}).not().isEmpty(),
@@ -311,6 +312,13 @@ router.post('/edit/:recid',
 		let cedulaCount = await DB.Trabajadores.count({where:{'cedula': modeldata.cedula, 'idusuario': {[DB.op.ne]: recid} }});
 		if(cedulaCount > 0){
 			return res.badRequest(`${modeldata.cedula} already exist.`);
+		}
+
+		
+		// check if email already exist.
+		let emailCount = await DB.Trabajadores.count({where:{'email': modeldata.email, 'idusuario': {[DB.op.ne]: recid} }});
+		if(emailCount > 0){
+			return res.badRequest(`${modeldata.email} already exist.`);
 		}
 
 		

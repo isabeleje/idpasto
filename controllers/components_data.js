@@ -122,14 +122,33 @@ router.get('/categoria_id_option_list', async (req, res) => {
 
 
  /**
+ * Route to get dependencia_id_option_list records
+ * @GET /components_data/dependencia_id_option_list
+ */
+router.get('/dependencia_id_option_list', async (req, res) => {
+	try{
+		let sqltext = `SELECT id AS value,nombre AS label FROM dependencias` ;
+		
+		let records = await DB.rawQueryList(sqltext);
+		return res.ok(records);
+	}
+	catch(err){
+		return res.serverError(err);
+	}
+});
+
+
+
+ /**
  * Route to get subdependencia_id_option_list records
  * @GET /components_data/subdependencia_id_option_list
  */
 router.get('/subdependencia_id_option_list', async (req, res) => {
 	try{
-		let sqltext = `SELECT id AS value,subdependencia AS label FROM subdependencias WHERE iddependencia=:lookup_dependencia_id` ;
+		let sqltext = `SELECT id AS value,subdependencia AS label FROM subdependencias WHERE iddependencia=:lookup_dependencia_id
+` ;
 		let queryParams = {};
-		queryParams['lookup_dependencia_id'] = req.query.lookup_dependencia_id;
+queryParams['lookup_dependencia_id'] = req.query.lookup_dependencia_id;
 		let records = await DB.rawQueryList(sqltext, queryParams,);
 		return res.ok(records);
 	}
