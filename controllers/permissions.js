@@ -138,6 +138,8 @@ router.post('/add/',
 		let record = await DB.Permissions.create(modeldata);
 		//await record.reload(); //reload the record from database
 		const recid =  record['permission_id'];
+		const newValues = JSON.stringify(record); 
+		req.writeToAuditLog({ recid, oldValues: null, newValues });
 		
 		return res.ok(record);
 	} catch(err){
@@ -194,7 +196,12 @@ router.post('/edit/:recid',
 		if(!record){
 			return res.notFound();
 		}
+		const oldValues = JSON.stringify(record); //for audit trail
 		await DB.Permissions.update(modeldata, {where: where});
+		record = await DB.Permissions.findOne(query);//for audit trail
+		const newValues = JSON.stringify(record); 
+		req.writeToAuditLog({ recid, oldValues, newValues });
+
 		return res.ok(modeldata);
 	}
 	catch(err){
@@ -219,6 +226,9 @@ router.get('/delete/:recid', async (req, res) => {
 		let records = await DB.Permissions.findAll(query);
 		records.forEach(async (record) => { 
 			//perform action on each record before delete
+			const oldValues = JSON.stringify(record); //for audit trail
+			req.writeToAuditLog({ recid: record['permission_id'], oldValues });
+
 		});
 		await DB.Permissions.destroy(query);
 		return res.ok(recid);

@@ -136,6 +136,8 @@ router.post('/add/',
 		let record = await DB.Roles.create(modeldata);
 		//await record.reload(); //reload the record from database
 		const recid =  record['role_id'];
+		const newValues = JSON.stringify(record); 
+		req.writeToAuditLog({ recid, oldValues: null, newValues });
 		
 		return res.ok(record);
 	} catch(err){
@@ -191,7 +193,12 @@ router.post('/edit/:recid',
 		if(!record){
 			return res.notFound();
 		}
+		const oldValues = JSON.stringify(record); //for audit trail
 		await DB.Roles.update(modeldata, {where: where});
+		record = await DB.Roles.findOne(query);//for audit trail
+		const newValues = JSON.stringify(record); 
+		req.writeToAuditLog({ recid, oldValues, newValues });
+
 		return res.ok(modeldata);
 	}
 	catch(err){
@@ -216,6 +223,9 @@ router.get('/delete/:recid', async (req, res) => {
 		let records = await DB.Roles.findAll(query);
 		records.forEach(async (record) => { 
 			//perform action on each record before delete
+			const oldValues = JSON.stringify(record); //for audit trail
+			req.writeToAuditLog({ recid: record['role_id'], oldValues });
+
 		});
 		await DB.Roles.destroy(query);
 		return res.ok(recid);

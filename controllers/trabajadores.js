@@ -240,6 +240,8 @@ router.post('/add/',
 		let record = await DB.Trabajadores.create(modeldata);
 		//await record.reload(); //reload the record from database
 		const recid =  record['idusuario'];
+		const newValues = JSON.stringify(record); 
+		req.writeToAuditLog({ recid, oldValues: null, newValues });
 		
 		return res.ok(record);
 	} catch(err){
@@ -343,7 +345,12 @@ router.post('/edit/:recid',
 		if(!record){
 			return res.notFound();
 		}
+		const oldValues = JSON.stringify(record); //for audit trail
 		await DB.Trabajadores.update(modeldata, {where: where});
+		record = await DB.Trabajadores.findOne(query);//for audit trail
+		const newValues = JSON.stringify(record); 
+		req.writeToAuditLog({ recid, oldValues, newValues });
+
 		return res.ok(modeldata);
 	}
 	catch(err){
@@ -368,7 +375,10 @@ router.get('/delete/:recid', async (req, res) => {
 		let records = await DB.Trabajadores.findAll(query);
 		records.forEach(async (record) => { 
 			//perform action on each record before delete
+			const oldValues = JSON.stringify(record); //for audit trail
 			uploader.deleteRecordFiles(record.foto, 'foto'); //delete file after record delete
+			req.writeToAuditLog({ recid: record['idusuario'], oldValues });
+
 		});
 		await DB.Trabajadores.destroy(query);
 		return res.ok(recid);
@@ -491,7 +501,12 @@ router.post('/editimpresion/:recid',
 		if(!record){
 			return res.notFound();
 		}
+		const oldValues = JSON.stringify(record); //for audit trail
 		await DB.Trabajadores.update(modeldata, {where: where});
+		record = await DB.Trabajadores.findOne(query);//for audit trail
+		const newValues = JSON.stringify(record); 
+		req.writeToAuditLog({ recid, oldValues, newValues });
+
 		return res.ok(modeldata);
 	}
 	catch(err){

@@ -85,7 +85,12 @@ router.post(['/edit'],
 		if(!record){
 			return res.notFound();
 		}
+		const oldValues = JSON.stringify(record); //for audit trail
 		await DB.Trabajadores.update(modeldata, {where: where});
+		record = await DB.Trabajadores.findOne(query);//for audit trail
+		const newValues = JSON.stringify(record); 
+		req.writeToAuditLog({ recid, oldValues, newValues });
+
 		return res.ok(modeldata);
 	}
 	catch(err){

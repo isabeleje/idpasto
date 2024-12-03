@@ -6,6 +6,7 @@ Sequelize.DATE.prototype._stringify = function _stringify(date, options) {
 	return this._applyTimezone(date, options).format('YYYY-MM-DD HH:mm:ss');
 };
 
+import Audits from './audits.js';
 import Carnetentregados from './carnetentregados.js';
 import Categorias from './categorias.js';
 import Dependencias from './dependencias.js';
@@ -94,6 +95,7 @@ export default {
 	rawQueryOne,
 	rawQueryValue,
 	getOrderBy,
+	Audits,
 	Carnetentregados,
 	Categorias,
 	Dependencias,

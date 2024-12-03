@@ -34,6 +34,10 @@ async function authMiddleware(req, res, next) {
 					req.isUser = true;
 					break;
 
+				case 'root':
+					req.isRoot = true;
+					break;
+
 				default:
 					req.isGuest = true;
 			}

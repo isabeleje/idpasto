@@ -13,6 +13,7 @@ import HomeController from './controllers/home.js';
 import ComponentsDataController from './controllers/components_data.js';
 import FileUploaderController from './controllers/fileuploader.js';
 import S3UploaderController from './controllers/s3uploader.js';
+import AuditsController from  './controllers/audits.js';
 import CarnetentregadosController from  './controllers/carnetentregados.js';
 import CategoriasController from  './controllers/categorias.js';
 import DependenciasController from  './controllers/dependencias.js';
@@ -53,6 +54,7 @@ app.use('/api/', HomeController);
 app.use('/api/auth', AuthController);
 app.use('/api/account', AccountController);
 
+app.use('/api/audits', AuditsController);
 app.use('/api/carnetentregados', CarnetentregadosController);
 app.use('/api/categorias', CategoriasController);
 app.use('/api/dependencias', DependenciasController);

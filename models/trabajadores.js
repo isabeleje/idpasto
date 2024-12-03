@@ -7,12 +7,12 @@ class Trabajadores extends BaseModel {
 			{
 				
 				idusuario: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
-				pin: { type:Sequelize.STRING , allowNull: false ,defaultValue: Sequelize.literal('DEFAULT') },
+				pin: { type:Sequelize.STRING  ,defaultValue: Sequelize.literal('DEFAULT') },
 				cedula: { type:Sequelize.INTEGER , allowNull: false ,defaultValue: Sequelize.literal('DEFAULT') },
 				nombres: { type:Sequelize.STRING , allowNull: false ,defaultValue: Sequelize.literal('DEFAULT') },
 				apellidos: { type:Sequelize.STRING , allowNull: false ,defaultValue: Sequelize.literal('DEFAULT') },
 				cargo: { type:Sequelize.STRING , allowNull: false ,defaultValue: Sequelize.literal('DEFAULT') },
-				grupo_sanguineo: { type:Sequelize.ENUM('A+','A-','O+','O-','B+','B-','AB+','AB-') , allowNull: false ,defaultValue: Sequelize.literal('DEFAULT') },
+				grupo_sanguineo: { type:Sequelize.STRING  ,defaultValue: Sequelize.literal('DEFAULT') },
 				foto: { type:Sequelize.STRING  ,defaultValue: Sequelize.literal('DEFAULT') },
 				observaciones: { type:Sequelize.STRING  ,defaultValue: Sequelize.literal('DEFAULT') },
 				estado: { type:Sequelize.ENUM('En servicio','inactivo') , allowNull: false ,defaultValue: Sequelize.literal('DEFAULT') },

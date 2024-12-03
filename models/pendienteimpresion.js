@@ -13,9 +13,9 @@ class Pendienteimpresion extends BaseModel {
 				cargo: { type:Sequelize.STRING , allowNull: false ,defaultValue: Sequelize.literal('DEFAULT') },
 				dependencia: { type:Sequelize.STRING , allowNull: false ,defaultValue: Sequelize.literal('DEFAULT') },
 				subdependencia: { type:Sequelize.STRING , allowNull: false ,defaultValue: Sequelize.literal('DEFAULT') },
-				qr: { type:Sequelize.STRING , allowNull: false ,defaultValue: Sequelize.literal('DEFAULT') },
-				pin: { type:Sequelize.STRING , allowNull: false ,defaultValue: Sequelize.literal('DEFAULT') },
-				grupo_sanguineo: { type:Sequelize.ENUM('A+','A-','O+','O-','B+','B-','AB+','AB-') , allowNull: false ,defaultValue: Sequelize.literal('DEFAULT') }
+				qr: { type:Sequelize.STRING  ,defaultValue: Sequelize.literal('DEFAULT') },
+				pin: { type:Sequelize.STRING  ,defaultValue: Sequelize.literal('DEFAULT') },
+				grupo_sanguineo: { type:Sequelize.STRING  ,defaultValue: Sequelize.literal('DEFAULT') }
 			}, 
 			{ 
 				sequelize,
