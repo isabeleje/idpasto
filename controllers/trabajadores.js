@@ -436,7 +436,7 @@ router.get('/impresion/:fieldname?/:fieldvalue?', async (req, res) => {
 		query.order = DB.getOrderBy(req, 'idusuario', 'desc');
 		query.attributes = DB.Trabajadores.impresionFields();
 		let page = parseInt(req.query.page) || 1;
-		let limit = parseInt(req.query.limit) || 20;
+		let limit = parseInt(req.query.limit) || 10;
 		let result = await DB.Trabajadores.paginate(query, page, limit);
 		return res.ok(result);
 	}
