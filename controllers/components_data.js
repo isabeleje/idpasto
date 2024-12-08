@@ -268,12 +268,30 @@ router.get('/getcount_pendientesdeentrega', async (req, res) => {
 
 
  /**
- * Route to getcount_pendientesporimprimir value
- * @GET /components_data/getcount_pendientesporimprimir
+ * Route to getcount_enesperadeimpresin value
+ * @GET /components_data/getcount_enesperadeimpresin
  */
-router.get('/getcount_pendientesporimprimir', async (req, res) => {
+router.get('/getcount_enesperadeimpresin', async (req, res) => {
 	try{
-		let sqltext = `SELECT COUNT(*) AS num FROM pendienteimpresion` ;
+		let sqltext = `SELECT COUNT(*) AS num FROM listosimpresion` ;
+		
+		let value = await DB.rawQueryValue(sqltext);
+		return res.ok(value.toString());
+	}
+	catch(err){
+		return res.serverError(err);
+	}
+});
+
+
+
+ /**
+ * Route to getcount_pendientesporactualizar value
+ * @GET /components_data/getcount_pendientesporactualizar
+ */
+router.get('/getcount_pendientesporactualizar', async (req, res) => {
+	try{
+		let sqltext = `SELECT COUNT(*) AS num FROM pendientesactualizar` ;
 		
 		let value = await DB.rawQueryValue(sqltext);
 		return res.ok(value.toString());
