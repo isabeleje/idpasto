@@ -281,13 +281,12 @@ router.get('/edit/:recid', async (req, res) => {
  */
 router.post('/edit/:recid', 
 	[
-		body('pin').optional({nullable: true}).not().isEmpty(),
+		body('pin').optional({nullable: true, checkFalsy: true}),
 		body('cedula').optional({nullable: true}).not().isEmpty().isNumeric(),
 		body('nombres').optional({nullable: true}).not().isEmpty(),
 		body('apellidos').optional({nullable: true}).not().isEmpty(),
 		body('grupo_sanguineo').optional({nullable: true}).not().isEmpty(),
 		body('foto').optional({nullable: true, checkFalsy: true}),
-		body('email').optional({nullable: true}).not().isEmpty().isEmail(),
 		body('cargo').optional({nullable: true}).not().isEmpty(),
 		body('categoria_id').optional({nullable: true}).not().isEmpty(),
 		body('dependencia_id').optional({nullable: true}).not().isEmpty(),
@@ -295,32 +294,18 @@ router.post('/edit/:recid',
 		body('usuario').optional({nullable: true}).not().isEmpty(),
 		body('user_role_id').optional({nullable: true, checkFalsy: true}),
 		body('estado').optional({nullable: true}).not().isEmpty(),
-		body('observaciones').optional({nullable: true, checkFalsy: true}),
 		body('estadocarnet').optional({nullable: true}).not().isEmpty(),
+		body('observaciones').optional({nullable: true, checkFalsy: true}),
 	], validateFormData
 , async (req, res) => {
 	try{
 		const recid = req.params.recid;
 		let modeldata = req.getValidFormData({ includeOptionals: true });
 		
-		// check if pin already exist.
-		let pinCount = await DB.Trabajadores.count({where:{'pin': modeldata.pin, 'idusuario': {[DB.op.ne]: recid} }});
-		if(pinCount > 0){
-			return res.badRequest(`${modeldata.pin} already exist.`);
-		}
-
-		
 		// check if cedula already exist.
 		let cedulaCount = await DB.Trabajadores.count({where:{'cedula': modeldata.cedula, 'idusuario': {[DB.op.ne]: recid} }});
 		if(cedulaCount > 0){
 			return res.badRequest(`${modeldata.cedula} already exist.`);
-		}
-
-		
-		// check if email already exist.
-		let emailCount = await DB.Trabajadores.count({where:{'email': modeldata.email, 'idusuario': {[DB.op.ne]: recid} }});
-		if(emailCount > 0){
-			return res.badRequest(`${modeldata.email} already exist.`);
 		}
 
 		

@@ -65,26 +65,6 @@ router.get('/trabajadores_usuario_exist/:fieldvalue', async (req, res) => {
 
  /**
  * Route to check if field value already exist in a Trabajadores table
- * @GET /components_data/trabajadores_pin_exist/{fieldvalue}
- */
-router.get('/trabajadores_pin_exist/:fieldvalue', async (req, res) => {
-	try{
-		let val = req.params.fieldvalue
-		let count = await DB.Trabajadores.count({ where:{ 'pin': val } });
-		if(count > 0){
-			return res.ok("true");
-		}
-		return res.ok("false");
-	}
-	catch(err){
-		return res.serverError(err);
-	}
-});
-
-
-
- /**
- * Route to check if field value already exist in a Trabajadores table
  * @GET /components_data/trabajadores_cedula_exist/{fieldvalue}
  */
 router.get('/trabajadores_cedula_exist/:fieldvalue', async (req, res) => {
