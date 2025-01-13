@@ -13,9 +13,9 @@ class Pendienteimpresion extends BaseModel {
 				cargo: { type:Sequelize.STRING , allowNull: false ,defaultValue: Sequelize.literal('DEFAULT') },
 				dependencia: { type:Sequelize.STRING , allowNull: false ,defaultValue: Sequelize.literal('DEFAULT') },
 				subdependencia: { type:Sequelize.STRING , allowNull: false ,defaultValue: Sequelize.literal('DEFAULT') },
-				qr: { type:Sequelize.STRING , allowNull: false ,defaultValue: Sequelize.literal('DEFAULT') },
-				pin: { type:Sequelize.STRING , allowNull: false ,defaultValue: Sequelize.literal('DEFAULT') },
-				grupo_sanguineo: { type:Sequelize.ENUM('A+','A-','O+','O-','B+','B-','AB+','AB-') , allowNull: false ,defaultValue: Sequelize.literal('DEFAULT') }
+				qr: { type:Sequelize.STRING  ,defaultValue: Sequelize.literal('DEFAULT') },
+				pin: { type:Sequelize.STRING  ,defaultValue: Sequelize.literal('DEFAULT') },
+				grupo_sanguineo: { type:Sequelize.STRING  ,defaultValue: Sequelize.literal('DEFAULT') }
 			}, 
 			{ 
 				sequelize,
@@ -28,6 +28,7 @@ class Pendienteimpresion extends BaseModel {
 	
 	static listFields() {
 		return [
+			'foto', 
 			'nombres', 
 			'apellidos', 
 			'cedula', 
@@ -36,13 +37,13 @@ class Pendienteimpresion extends BaseModel {
 			'subdependencia', 
 			'qr', 
 			'pin', 
-			'grupo_sanguineo', 
-			'foto'
+			'grupo_sanguineo'
 		];
 	}
 
 	static exportListFields() {
 		return [
+			'foto', 
 			'nombres', 
 			'apellidos', 
 			'cedula', 
@@ -51,8 +52,7 @@ class Pendienteimpresion extends BaseModel {
 			'subdependencia', 
 			'qr', 
 			'pin', 
-			'grupo_sanguineo', 
-			'foto'
+			'grupo_sanguineo'
 		];
 	}
 
@@ -65,6 +65,7 @@ class Pendienteimpresion extends BaseModel {
 			Sequelize.literal("cargo LIKE :search"), 
 			Sequelize.literal("dependencia LIKE :search"), 
 			Sequelize.literal("subdependencia LIKE :search"), 
+			Sequelize.literal("qr LIKE :search"), 
 			Sequelize.literal("pin LIKE :search"),
 		];
 	}

@@ -327,6 +327,7 @@ router.post('/edit/:recid',
 			return res.badRequest(`${modeldata.cedula} already exist.`);
 		}
 
+<<<<<<< HEAD
 		
 		// check if email already exist.
 		let emailCount = await DB.Trabajadores.count({where:{'email': modeldata.email, 'idusuario': {[DB.op.ne]: recid} }});
@@ -334,6 +335,8 @@ router.post('/edit/:recid',
 			return res.badRequest(`${modeldata.email} already exist.`);
 		}
 
+=======
+>>>>>>> a6afe61ff5a8bc1384b95402c686ea5719154ce6
 		
 		// check if usuario already exist.
 		let usuarioCount = await DB.Trabajadores.count({where:{'usuario': modeldata.usuario, 'idusuario': {[DB.op.ne]: recid} }});

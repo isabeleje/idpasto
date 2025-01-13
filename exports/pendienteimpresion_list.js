@@ -23,7 +23,7 @@ async function exportListPage(records, req, res) {
 
 		if(format == "excel"){
 			let workbook = new excel.Workbook();
-			let worksheet = workbook.addWorksheet("Pendienteimpresion");
+			let worksheet = workbook.addWorksheet("Pendientes_impresion");
 			worksheet.columns = columns;
 			worksheet.addRows(records);
 
@@ -41,7 +41,7 @@ async function exportListPage(records, req, res) {
 		}
 		else if(format == "csv"){
 			let workbook = new excel.Workbook();
-			let worksheet = workbook.addWorksheet("Pendienteimpresion");
+			let worksheet = workbook.addWorksheet("Pendientes_impresion");
 			worksheet.columns = columns;
 			worksheet.addRows(records);
 			res.setHeader("Content-Disposition", `attachment; filename=${filename}.csv`);
