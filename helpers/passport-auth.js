@@ -1,7 +1,10 @@
+
 import passport from 'passport';
 import PassportJwt from 'passport-jwt';
+
 import DB from '../models/db.js';
 import config from '../config.js';
+
 export default function () {
 	const JwtStrategy = PassportJwt.Strategy;
 	const ExtractJwt = PassportJwt.ExtractJwt;
@@ -18,7 +21,8 @@ export default function () {
 					}, 
 					attributes: { 
 						exclude:['contrasena', 'otp_code', 'otp_date', 'email_verified_at']
-					} 
+					},
+					raw: true
 				});
 				done(null, user);
 			}

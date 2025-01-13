@@ -9,8 +9,8 @@ const router = Router();
 
 
 /**
- * Route to list pendientesentrega records
- * @GET /pendientesentrega/index/{fieldname}/{fieldvalue}
+ * Route to list audits records
+ * @GET /audits/index/{fieldname}/{fieldvalue}
  */
 router.get(['/', '/index/:fieldname?/:fieldvalue?'], async (req, res) => {  
 	try{
@@ -26,7 +26,7 @@ router.get(['/', '/index/:fieldname?/:fieldvalue?'], async (req, res) => {
 		}
 		let search = req.query.search;
 		if(search){
-			let searchFields = DB.Pendientesentrega.searchFields();
+			let searchFields = DB.Audits.searchFields();
 			where[DB.op.or] = searchFields;
 			replacements.search = `%${search}%`;
 		}
@@ -37,14 +37,39 @@ router.get(['/', '/index/:fieldname?/:fieldvalue?'], async (req, res) => {
 		query.raw = true;
 		query.where = where;
 		query.replacements = replacements;
-		query.order = DB.getOrderBy(req, 'cedula', 'desc');
-		query.attributes = DB.Pendientesentrega.listFields();
+		query.order = DB.getOrderBy(req, 'log_id', 'desc');
+		query.attributes = DB.Audits.listFields();
 		let page = parseInt(req.query.page) || 1;
 		let limit = parseInt(req.query.limit) || 10;
-		let result = await DB.Pendientesentrega.paginate(query, page, limit);
+		let result = await DB.Audits.paginate(query, page, limit);
 		return res.ok(result);
 	}
 	catch(err) {
+		return res.serverError(err);
+	}
+});
+
+
+/**
+ * Route to view Audits record
+ * @GET /audits/view/{recid}
+ */
+router.get('/view/:recid', async (req, res) => {
+	try{
+		const recid = req.params.recid || null;
+		const query = {}
+		const where = {}
+		where['log_id'] = recid;
+		query.raw = true;
+		query.where = where;
+		query.attributes = DB.Audits.viewFields();
+		let record = await DB.Audits.findOne(query);
+		if(!record){
+			return res.notFound();
+		}
+		return res.ok(record);
+	}
+	catch(err){
 		return res.serverError(err);
 	}
 });

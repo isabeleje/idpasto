@@ -9,8 +9,8 @@ const router = Router();
 
 
 /**
- * Route to list pendientesentrega records
- * @GET /pendientesentrega/index/{fieldname}/{fieldvalue}
+ * Route to list pendientesactualizar records
+ * @GET /pendientesactualizar/index/{fieldname}/{fieldvalue}
  */
 router.get(['/', '/index/:fieldname?/:fieldvalue?'], async (req, res) => {  
 	try{
@@ -26,7 +26,7 @@ router.get(['/', '/index/:fieldname?/:fieldvalue?'], async (req, res) => {
 		}
 		let search = req.query.search;
 		if(search){
-			let searchFields = DB.Pendientesentrega.searchFields();
+			let searchFields = DB.Pendientesactualizar.searchFields();
 			where[DB.op.or] = searchFields;
 			replacements.search = `%${search}%`;
 		}
@@ -37,11 +37,11 @@ router.get(['/', '/index/:fieldname?/:fieldvalue?'], async (req, res) => {
 		query.raw = true;
 		query.where = where;
 		query.replacements = replacements;
-		query.order = DB.getOrderBy(req, 'cedula', 'desc');
-		query.attributes = DB.Pendientesentrega.listFields();
+		query.order = DB.getOrderBy(req, 'foto', 'desc');
+		query.attributes = DB.Pendientesactualizar.listFields();
 		let page = parseInt(req.query.page) || 1;
 		let limit = parseInt(req.query.limit) || 10;
-		let result = await DB.Pendientesentrega.paginate(query, page, limit);
+		let result = await DB.Pendientesactualizar.paginate(query, page, limit);
 		return res.ok(result);
 	}
 	catch(err) {

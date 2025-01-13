@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import DB from '../models/db.js';
+import exportListPage from '../exports/listosimpresion_list.js';
 
 
 const router = Router();
@@ -9,8 +10,8 @@ const router = Router();
 
 
 /**
- * Route to list pendientesentrega records
- * @GET /pendientesentrega/index/{fieldname}/{fieldvalue}
+ * Route to list listosimpresion records
+ * @GET /listosimpresion/index/{fieldname}/{fieldvalue}
  */
 router.get(['/', '/index/:fieldname?/:fieldvalue?'], async (req, res) => {  
 	try{
@@ -26,7 +27,7 @@ router.get(['/', '/index/:fieldname?/:fieldvalue?'], async (req, res) => {
 		}
 		let search = req.query.search;
 		if(search){
-			let searchFields = DB.Pendientesentrega.searchFields();
+			let searchFields = DB.Listosimpresion.searchFields();
 			where[DB.op.or] = searchFields;
 			replacements.search = `%${search}%`;
 		}
@@ -37,11 +38,16 @@ router.get(['/', '/index/:fieldname?/:fieldvalue?'], async (req, res) => {
 		query.raw = true;
 		query.where = where;
 		query.replacements = replacements;
-		query.order = DB.getOrderBy(req, 'cedula', 'desc');
-		query.attributes = DB.Pendientesentrega.listFields();
+		query.order = DB.getOrderBy(req, 'foto', 'desc');
+		if(req.query.export){
+			query.attributes = DB.Listosimpresion.exportListFields();
+			let records = await DB.Listosimpresion.findAll(query);
+			return exportListPage(records, req, res)
+		}
+		query.attributes = DB.Listosimpresion.listFields();
 		let page = parseInt(req.query.page) || 1;
-		let limit = parseInt(req.query.limit) || 10;
-		let result = await DB.Pendientesentrega.paginate(query, page, limit);
+		let limit = parseInt(req.query.limit) || 20;
+		let result = await DB.Listosimpresion.paginate(query, page, limit);
 		return res.ok(result);
 	}
 	catch(err) {

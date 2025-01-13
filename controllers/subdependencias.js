@@ -9,6 +9,7 @@ const router = Router();
 
 
 
+
 /**
  * Route to list subdependencias records
  * @GET /subdependencias/index/{fieldname}/{fieldvalue}
@@ -55,7 +56,7 @@ router.get(['/', '/index/:fieldname?/:fieldvalue?'], async (req, res) => {
  * Route to view Subdependencias record
  * @GET /subdependencias/view/{recid}
  */
-router.get(['/view/:recid'], async (req, res) => {
+router.get('/view/:recid', async (req, res) => {
 	try{
 		const recid = req.params.recid || null;
 		const query = {}
@@ -82,6 +83,7 @@ router.get(['/view/:recid'], async (req, res) => {
  */
 router.post('/add/', 
 	[
+		body('iddependencia').not().isEmpty(),
 		body('subdependencia').not().isEmpty(),
 		body('estado').not().isEmpty(),
 	], validateFormData
@@ -93,6 +95,8 @@ router.post('/add/',
 		let record = await DB.Subdependencias.create(modeldata);
 		//await record.reload(); //reload the record from database
 		const recid =  record['id'];
+		const newValues = JSON.stringify(record); 
+		req.writeToAuditLog({ recid, oldValues: null, newValues });
 		
 		return res.ok(record);
 	} catch(err){
@@ -132,7 +136,7 @@ router.get('/edit/:recid', async (req, res) => {
  */
 router.post('/edit/:recid', 
 	[
-		body('iddependencia').optional({nullable: true}).not().isEmpty().isNumeric(),
+		body('iddependencia').optional({nullable: true}).not().isEmpty(),
 		body('subdependencia').optional({nullable: true}).not().isEmpty(),
 		body('estado').optional({nullable: true}).not().isEmpty(),
 	], validateFormData
@@ -150,7 +154,12 @@ router.post('/edit/:recid',
 		if(!record){
 			return res.notFound();
 		}
+		const oldValues = JSON.stringify(record); //for audit trail
 		await DB.Subdependencias.update(modeldata, {where: where});
+		record = await DB.Subdependencias.findOne(query);//for audit trail
+		const newValues = JSON.stringify(record); 
+		req.writeToAuditLog({ recid, oldValues, newValues });
+
 		return res.ok(modeldata);
 	}
 	catch(err){
@@ -175,6 +184,9 @@ router.get('/delete/:recid', async (req, res) => {
 		let records = await DB.Subdependencias.findAll(query);
 		records.forEach(async (record) => { 
 			//perform action on each record before delete
+			const oldValues = JSON.stringify(record); //for audit trail
+			req.writeToAuditLog({ recid: record['id'], oldValues });
+
 		});
 		await DB.Subdependencias.destroy(query);
 		return res.ok(recid);

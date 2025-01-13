@@ -9,6 +9,7 @@ const router = Router();
 
 
 
+
 /**
  * Route to list categorias records
  * @GET /categorias/index/{fieldname}/{fieldvalue}
@@ -55,7 +56,7 @@ router.get(['/', '/index/:fieldname?/:fieldvalue?'], async (req, res) => {
  * Route to view Categorias record
  * @GET /categorias/view/{recid}
  */
-router.get(['/view/:recid'], async (req, res) => {
+router.get('/view/:recid', async (req, res) => {
 	try{
 		const recid = req.params.recid || null;
 		const query = {}
@@ -93,6 +94,8 @@ router.post('/add/',
 		let record = await DB.Categorias.create(modeldata);
 		//await record.reload(); //reload the record from database
 		const recid =  record['id'];
+		const newValues = JSON.stringify(record); 
+		req.writeToAuditLog({ recid, oldValues: null, newValues });
 		
 		return res.ok(record);
 	} catch(err){
@@ -149,7 +152,12 @@ router.post('/edit/:recid',
 		if(!record){
 			return res.notFound();
 		}
+		const oldValues = JSON.stringify(record); //for audit trail
 		await DB.Categorias.update(modeldata, {where: where});
+		record = await DB.Categorias.findOne(query);//for audit trail
+		const newValues = JSON.stringify(record); 
+		req.writeToAuditLog({ recid, oldValues, newValues });
+
 		return res.ok(modeldata);
 	}
 	catch(err){
@@ -174,6 +182,9 @@ router.get('/delete/:recid', async (req, res) => {
 		let records = await DB.Categorias.findAll(query);
 		records.forEach(async (record) => { 
 			//perform action on each record before delete
+			const oldValues = JSON.stringify(record); //for audit trail
+			req.writeToAuditLog({ recid: record['id'], oldValues });
+
 		});
 		await DB.Categorias.destroy(query);
 		return res.ok(recid);

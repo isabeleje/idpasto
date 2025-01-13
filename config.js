@@ -26,7 +26,7 @@ export default {
 	},
 	mail: {
 		username:"sipap@pasto.gov.co",
-		password: "hijx orsz fmnj xtjr",
+		password: "bbpj qopj zicn sxgq",
 		senderemail:"sipap@pasto.gov.co",
 		sendername:"Subsecretaría de Sistemas de Información",
 		host: "smtp.gmail.com",
@@ -35,9 +35,9 @@ export default {
 	},
 	upload: {
 		tempDir: "uploads/temp/",
-		import_data: {
+		importdata: {
 			filenameType: "timestamp",
-			extensions: "json,csv",
+			extensions: "csv",
 			limit: "10",
 			maxFileSize: "3",
 			returnFullpath: "false",

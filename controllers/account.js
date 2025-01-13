@@ -1,8 +1,11 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
+
 import utils from '../helpers/utils.js';
 import uploader from '../helpers/uploader.js';
+
 import Rbac from '../helpers/rbac.js';
+
 import validateFormData from '../helpers/validate_form.js';
 import DB from '../models/db.js';
 const router = Router();
@@ -61,6 +64,7 @@ router.post(['/edit'],
 		body('foto').optional({nullable: true}).not().isEmpty(),
 		body('grupo_sanguineo').optional({nullable: true}).not().isEmpty(),
 		body('email').optional({nullable: true}).not().isEmpty().isEmail(),
+		body('usuario').optional({nullable: true}).not().isEmpty(),
 	], validateFormData
 , async (req, res) => {
 	try{
@@ -81,7 +85,12 @@ router.post(['/edit'],
 		if(!record){
 			return res.notFound();
 		}
+		const oldValues = JSON.stringify(record); //for audit trail
 		await DB.Trabajadores.update(modeldata, {where: where});
+		record = await DB.Trabajadores.findOne(query);//for audit trail
+		const newValues = JSON.stringify(record); 
+		req.writeToAuditLog({ recid, oldValues, newValues });
+
 		return res.ok(modeldata);
 	}
 	catch(err){
@@ -110,6 +119,7 @@ router.post('/changepassword' ,
 	try{
 		let oldPassword = req.body.oldpassword;
 		let newPassword = req.body.newpassword;
+
 		let userId = req.user.idusuario;
 		let query = {};
 		let where = {

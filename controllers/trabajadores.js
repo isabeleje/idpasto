@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import csv from 'fast-csv';
+
 import { body } from 'express-validator';
+
 import utils from '../helpers/utils.js';
 import uploader from '../helpers/uploader.js';
 import { fileUploadMiddleware } from '../helpers/upload_middleware.js';
@@ -10,6 +12,7 @@ import exportListPage from '../exports/trabajadores_list.js';
 
 
 const router = Router();
+
 
 
 
@@ -37,18 +40,21 @@ router.get(['/', '/index/:fieldname?/:fieldvalue?'], async (req, res) => {
 			as: 'categorias',
 			attributes: [], //already set via model class
 		})
+
 		joinTables.push({
 			model: DB.Dependencias,
 			required: true,
 			as: 'dependencias',
 			attributes: [], //already set via model class
 		})
+
 		joinTables.push({
 			model: DB.Subdependencias,
 			required: true,
 			as: 'subdependencias',
 			attributes: [], //already set via model class
 		})
+
 		query.include = joinTables;
 		let search = req.query.search;
 		if(search){
@@ -71,7 +77,7 @@ router.get(['/', '/index/:fieldname?/:fieldvalue?'], async (req, res) => {
 		}
 		query.attributes = DB.Trabajadores.listFields();
 		let page = parseInt(req.query.page) || 1;
-		let limit = parseInt(req.query.limit) || 20;
+		let limit = parseInt(req.query.limit) || 10;
 		let result = await DB.Trabajadores.paginate(query, page, limit);
 		return res.ok(result);
 	}
@@ -87,7 +93,7 @@ router.get(['/', '/index/:fieldname?/:fieldvalue?'], async (req, res) => {
  * csv file must contain table header on the first line.
  * @GET /trabajadores/importdata
  */
-router.post('/importdata', fileUploadMiddleware('import_data'), async (req, res, next) => {
+router.post('/importdata', fileUploadMiddleware('importdata'), async (req, res, next) => {
 	if(req.files){	// files uploaded
 		var uploadedPaths = req.files.map(function(v) {
 			return v.path;
@@ -97,7 +103,28 @@ router.post('/importdata', fileUploadMiddleware('import_data'), async (req, res,
 				let records = [];
 				csv.fromPath(fpath, {headers: true, ignoreEmpty: true}).on("data", function(data){
 					if(data){
-						records.push(data);
+						const modeldata = {
+							pin: data['pin'],
+							cedula: data['cedula'],
+							nombres: data['nombres'],
+							apellidos: data['apellidos'],
+							cargo: data['cargo'],
+							grupo_sanguineo: data['grupo_sanguineo'],
+							foto: data['foto'],
+							observaciones: data['observaciones'],
+							estado: data['estado'],
+							categoria_id: data['categoria_id'],
+							dependencia_id: data['dependencia_id'],
+							subdependencia_id: data['subdependencia_id'],
+							contrasena: data['contrasena'],
+							email: data['email'],
+							usuario: data['usuario'],
+							user_role_id: data['user_role_id'],
+							date_created: data['date_created'],
+							date_updated: data['date_updated'],
+							estadoCarnet: data['estadoCarnet']
+						}
+						records.push(modeldata);
 					}
 				}).on("end", async() => {
 					try{
@@ -122,7 +149,7 @@ router.post('/importdata', fileUploadMiddleware('import_data'), async (req, res,
  * Route to view Trabajadores record
  * @GET /trabajadores/view/{recid}
  */
-router.get(['/view/:recid'], async (req, res) => {
+router.get('/view/:recid', async (req, res) => {
 	try{
 		const recid = req.params.recid || null;
 		const query = {}
@@ -134,23 +161,27 @@ router.get(['/view/:recid'], async (req, res) => {
 			as: 'categorias',
 			attributes: [], //already set via model class
 		})
+
 		joinTables.push({
 			model: DB.Dependencias,
 			required: true,
 			as: 'dependencias',
 			attributes: [], //already set via model class
 		})
+
 		joinTables.push({
 			model: DB.Subdependencias,
 			required: true,
 			as: 'subdependencias',
 			attributes: [], //already set via model class
 		})
+
 		query.include = joinTables;
 		where[DB.op.and] = DB.raw('trabajadores.idusuario = :recid');
 		query.replacements = {
 			recid
 		}
+
 		query.raw = true;
 		query.where = where;
 		query.attributes = DB.Trabajadores.viewFields();
@@ -172,11 +203,23 @@ router.get(['/view/:recid'], async (req, res) => {
  */
 router.post('/add/', 
 	[
+		body('cedula').not().isEmpty().isNumeric(),
+		body('nombres').not().isEmpty(),
+		body('apellidos').not().isEmpty(),
+		body('grupo_sanguineo').not().isEmpty(),
 		body('foto').optional({nullable: true, checkFalsy: true}),
 		body('email').not().isEmpty().isEmail(),
+		body('cargo').not().isEmpty(),
+		body('categoria_id').not().isEmpty(),
+		body('dependencia_id').not().isEmpty(),
+		body('subdependencia_id').not().isEmpty(),
 		body('usuario').not().isEmpty(),
 		body('contrasena').not().isEmpty(),
 		body('confirm_password', 'Passwords do not match').custom((value, {req}) => (value === req.body.contrasena)),
+		body('user_role_id').optional({nullable: true, checkFalsy: true}),
+		body('estado').not().isEmpty(),
+		body('estadocarnet').not().isEmpty(),
+		body('observaciones').optional({nullable: true, checkFalsy: true}),
 	], validateFormData
 , async function (req, res) {
 	try{
@@ -184,8 +227,14 @@ router.post('/add/',
 		modeldata.contrasena = utils.passwordHash(modeldata.contrasena);
 		
 		// set default role for user
-		const roleId =  await DB.Roles.findValue('role_id', {role_name: 'User'});
+		const roleId =  await DB.Roles.findValue('role_id', {role_name: 'Admin'});
 		modeldata['user_role_id'] = roleId;
+		
+		// check if cedula already exist.
+		let cedulaCount = await DB.Trabajadores.count({ where:{ 'cedula': modeldata.cedula } });
+		if(cedulaCount > 0){
+			return res.badRequest(`${modeldata.cedula} already exist.`);
+		}
 		
 		// check if email already exist.
 		let emailCount = await DB.Trabajadores.count({ where:{ 'email': modeldata.email } });
@@ -209,6 +258,8 @@ router.post('/add/',
 		let record = await DB.Trabajadores.create(modeldata);
 		//await record.reload(); //reload the record from database
 		const recid =  record['idusuario'];
+		const newValues = JSON.stringify(record); 
+		req.writeToAuditLog({ recid, oldValues: null, newValues });
 		
 		return res.ok(record);
 	} catch(err){
@@ -248,38 +299,41 @@ router.get('/edit/:recid', async (req, res) => {
  */
 router.post('/edit/:recid', 
 	[
-		body('pin').optional({nullable: true}).not().isEmpty(),
+		body('pin').optional({nullable: true, checkFalsy: true}),
 		body('cedula').optional({nullable: true}).not().isEmpty().isNumeric(),
 		body('nombres').optional({nullable: true}).not().isEmpty(),
 		body('apellidos').optional({nullable: true}).not().isEmpty(),
 		body('grupo_sanguineo').optional({nullable: true}).not().isEmpty(),
 		body('foto').optional({nullable: true, checkFalsy: true}),
+		body('email').optional({nullable: true}).not().isEmpty().isEmail(),
 		body('cargo').optional({nullable: true}).not().isEmpty(),
 		body('categoria_id').optional({nullable: true}).not().isEmpty(),
 		body('dependencia_id').optional({nullable: true}).not().isEmpty(),
-		body('subdependencia_id').optional({nullable: true, checkFalsy: true}),
+		body('subdependencia_id').optional({nullable: true}).not().isEmpty(),
 		body('usuario').optional({nullable: true}).not().isEmpty(),
 		body('user_role_id').optional({nullable: true, checkFalsy: true}),
 		body('estado').optional({nullable: true}).not().isEmpty(),
-		body('observaciones').optional({nullable: true, checkFalsy: true}),
 		body('estadocarnet').optional({nullable: true}).not().isEmpty(),
+		body('observaciones').optional({nullable: true, checkFalsy: true}),
 	], validateFormData
 , async (req, res) => {
 	try{
 		const recid = req.params.recid;
 		let modeldata = req.getValidFormData({ includeOptionals: true });
 		
-		// check if pin already exist.
-		let pinCount = await DB.Trabajadores.count({where:{'pin': modeldata.pin, 'idusuario': {[DB.op.ne]: recid} }});
-		if(pinCount > 0){
-			return res.badRequest(`${modeldata.pin} already exist.`);
-		}
-		
 		// check if cedula already exist.
 		let cedulaCount = await DB.Trabajadores.count({where:{'cedula': modeldata.cedula, 'idusuario': {[DB.op.ne]: recid} }});
 		if(cedulaCount > 0){
 			return res.badRequest(`${modeldata.cedula} already exist.`);
 		}
+
+		
+		// check if email already exist.
+		let emailCount = await DB.Trabajadores.count({where:{'email': modeldata.email, 'idusuario': {[DB.op.ne]: recid} }});
+		if(emailCount > 0){
+			return res.badRequest(`${modeldata.email} already exist.`);
+		}
+
 		
 		// check if usuario already exist.
 		let usuarioCount = await DB.Trabajadores.count({where:{'usuario': modeldata.usuario, 'idusuario': {[DB.op.ne]: recid} }});
@@ -302,7 +356,12 @@ router.post('/edit/:recid',
 		if(!record){
 			return res.notFound();
 		}
+		const oldValues = JSON.stringify(record); //for audit trail
 		await DB.Trabajadores.update(modeldata, {where: where});
+		record = await DB.Trabajadores.findOne(query);//for audit trail
+		const newValues = JSON.stringify(record); 
+		req.writeToAuditLog({ recid, oldValues, newValues });
+
 		return res.ok(modeldata);
 	}
 	catch(err){
@@ -327,7 +386,10 @@ router.get('/delete/:recid', async (req, res) => {
 		let records = await DB.Trabajadores.findAll(query);
 		records.forEach(async (record) => { 
 			//perform action on each record before delete
+			const oldValues = JSON.stringify(record); //for audit trail
 			uploader.deleteRecordFiles(record.foto, 'foto'); //delete file after record delete
+			req.writeToAuditLog({ recid: record['idusuario'], oldValues });
+
 		});
 		await DB.Trabajadores.destroy(query);
 		return res.ok(recid);
@@ -342,7 +404,7 @@ router.get('/delete/:recid', async (req, res) => {
  * Route to list trabajadores records
  * @GET /trabajadores/index/{fieldname}/{fieldvalue}
  */
-router.get(['/impresion/:fieldname?/:fieldvalue?'], async (req, res) => {  
+router.get('/impresion/:fieldname?/:fieldvalue?', async (req, res) => {  
 	try{
 		const query = {};
 		let queryFilters = [];
@@ -361,18 +423,21 @@ router.get(['/impresion/:fieldname?/:fieldvalue?'], async (req, res) => {
 			as: 'categorias',
 			attributes: [], //already set via model class
 		})
+
 		joinTables.push({
 			model: DB.Dependencias,
 			required: true,
 			as: 'dependencias',
 			attributes: [], //already set via model class
 		})
+
 		joinTables.push({
 			model: DB.Subdependencias,
 			required: true,
 			as: 'subdependencias',
 			attributes: [], //already set via model class
 		})
+
 		query.include = joinTables;
 		let search = req.query.search;
 		if(search){
@@ -390,7 +455,7 @@ router.get(['/impresion/:fieldname?/:fieldvalue?'], async (req, res) => {
 		query.order = DB.getOrderBy(req, 'idusuario', 'desc');
 		query.attributes = DB.Trabajadores.impresionFields();
 		let page = parseInt(req.query.page) || 1;
-		let limit = parseInt(req.query.limit) || 20;
+		let limit = parseInt(req.query.limit) || 10;
 		let result = await DB.Trabajadores.paginate(query, page, limit);
 		return res.ok(result);
 	}
@@ -447,7 +512,12 @@ router.post('/editimpresion/:recid',
 		if(!record){
 			return res.notFound();
 		}
+		const oldValues = JSON.stringify(record); //for audit trail
 		await DB.Trabajadores.update(modeldata, {where: where});
+		record = await DB.Trabajadores.findOne(query);//for audit trail
+		const newValues = JSON.stringify(record); 
+		req.writeToAuditLog({ recid, oldValues, newValues });
+
 		return res.ok(modeldata);
 	}
 	catch(err){
@@ -460,7 +530,7 @@ router.post('/editimpresion/:recid',
  * Route to view Trabajadores record
  * @GET /trabajadores/view/{recid}
  */
-router.get(['/vistaid/:recid'], async (req, res) => {
+router.get('/vistaid/:recid', async (req, res) => {
 	try{
 		const recid = req.params.recid || null;
 		const query = {}
@@ -472,23 +542,27 @@ router.get(['/vistaid/:recid'], async (req, res) => {
 			as: 'categorias',
 			attributes: [], //already set via model class
 		})
+
 		joinTables.push({
 			model: DB.Dependencias,
 			required: true,
 			as: 'dependencias',
 			attributes: [], //already set via model class
 		})
+
 		joinTables.push({
 			model: DB.Subdependencias,
 			required: true,
 			as: 'subdependencias',
 			attributes: [], //already set via model class
 		})
+
 		query.include = joinTables;
 		where[DB.op.and] = DB.raw('trabajadores.idusuario = :recid');
 		query.replacements = {
 			recid
 		}
+
 		query.raw = true;
 		query.where = where;
 		query.attributes = DB.Trabajadores.vistaidFields();

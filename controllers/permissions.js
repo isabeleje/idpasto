@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import csv from 'fast-csv';
+
 import { body } from 'express-validator';
 import { fileUploadMiddleware } from '../helpers/upload_middleware.js';
 import validateFormData from '../helpers/validate_form.js';
@@ -7,6 +8,7 @@ import DB from '../models/db.js';
 
 
 const router = Router();
+
 
 
 
@@ -59,7 +61,7 @@ router.get(['/', '/index/:fieldname?/:fieldvalue?'], async (req, res) => {
  * csv file must contain table header on the first line.
  * @GET /permissions/importdata
  */
-router.post('/importdata', fileUploadMiddleware('import_data'), async (req, res, next) => {
+router.post('/importdata', fileUploadMiddleware('importdata'), async (req, res, next) => {
 	if(req.files){	// files uploaded
 		var uploadedPaths = req.files.map(function(v) {
 			return v.path;
@@ -69,7 +71,11 @@ router.post('/importdata', fileUploadMiddleware('import_data'), async (req, res,
 				let records = [];
 				csv.fromPath(fpath, {headers: true, ignoreEmpty: true}).on("data", function(data){
 					if(data){
-						records.push(data);
+						const modeldata = {
+							permission: data['permission'],
+							role_id: data['role_id']
+						}
+						records.push(modeldata);
 					}
 				}).on("end", async() => {
 					try{
@@ -94,7 +100,7 @@ router.post('/importdata', fileUploadMiddleware('import_data'), async (req, res,
  * Route to view Permissions record
  * @GET /permissions/view/{recid}
  */
-router.get(['/view/:recid'], async (req, res) => {
+router.get('/view/:recid', async (req, res) => {
 	try{
 		const recid = req.params.recid || null;
 		const query = {}
@@ -132,6 +138,8 @@ router.post('/add/',
 		let record = await DB.Permissions.create(modeldata);
 		//await record.reload(); //reload the record from database
 		const recid =  record['permission_id'];
+		const newValues = JSON.stringify(record); 
+		req.writeToAuditLog({ recid, oldValues: null, newValues });
 		
 		return res.ok(record);
 	} catch(err){
@@ -188,7 +196,12 @@ router.post('/edit/:recid',
 		if(!record){
 			return res.notFound();
 		}
+		const oldValues = JSON.stringify(record); //for audit trail
 		await DB.Permissions.update(modeldata, {where: where});
+		record = await DB.Permissions.findOne(query);//for audit trail
+		const newValues = JSON.stringify(record); 
+		req.writeToAuditLog({ recid, oldValues, newValues });
+
 		return res.ok(modeldata);
 	}
 	catch(err){
@@ -213,6 +226,9 @@ router.get('/delete/:recid', async (req, res) => {
 		let records = await DB.Permissions.findAll(query);
 		records.forEach(async (record) => { 
 			//perform action on each record before delete
+			const oldValues = JSON.stringify(record); //for audit trail
+			req.writeToAuditLog({ recid: record['permission_id'], oldValues });
+
 		});
 		await DB.Permissions.destroy(query);
 		return res.ok(recid);
