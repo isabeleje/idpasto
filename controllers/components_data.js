@@ -8,8 +8,6 @@ const router = Router();
  /**
  * Route to get iddependencia_option_list records
  * @GET /components_data/iddependencia_option_list
-<<<<<<< HEAD
-=======
  */
 router.get('/iddependencia_option_list', async (req, res) => {
 	try{
@@ -28,14 +26,15 @@ router.get('/iddependencia_option_list', async (req, res) => {
  /**
  * Route to check if field value already exist in a Trabajadores table
  * @GET /components_data/trabajadores_email_exist/{fieldvalue}
->>>>>>> a6afe61ff5a8bc1384b95402c686ea5719154ce6
  */
-router.get('/iddependencia_option_list', async (req, res) => {
+router.get('/trabajadores_email_exist/:fieldvalue', async (req, res) => {
 	try{
-		let sqltext = `SELECT  DISTINCT id AS value,nombre AS label FROM dependencias` ;
-		
-		let records = await DB.rawQueryList(sqltext);
-		return res.ok(records);
+		let val = req.params.fieldvalue
+		let count = await DB.Trabajadores.count({ where:{ 'email': val } });
+		if(count > 0){
+			return res.ok("true");
+		}
+		return res.ok("false");
 	}
 	catch(err){
 		return res.serverError(err);
@@ -43,8 +42,6 @@ router.get('/iddependencia_option_list', async (req, res) => {
 });
 
 
-<<<<<<< HEAD
-=======
 
  /**
  * Route to check if field value already exist in a Trabajadores table
@@ -65,7 +62,6 @@ router.get('/trabajadores_usuario_exist/:fieldvalue', async (req, res) => {
 });
 
 
->>>>>>> a6afe61ff5a8bc1384b95402c686ea5719154ce6
 
  /**
  * Route to check if field value already exist in a Trabajadores table
@@ -87,29 +83,6 @@ router.get('/trabajadores_cedula_exist/:fieldvalue', async (req, res) => {
 
 
 
-<<<<<<< HEAD
- /**
- * Route to check if field value already exist in a Trabajadores table
- * @GET /components_data/trabajadores_email_exist/{fieldvalue}
- */
-router.get('/trabajadores_email_exist/:fieldvalue', async (req, res) => {
-	try{
-		let val = req.params.fieldvalue
-		let count = await DB.Trabajadores.count({ where:{ 'email': val } });
-		if(count > 0){
-			return res.ok("true");
-		}
-		return res.ok("false");
-	}
-	catch(err){
-		return res.serverError(err);
-	}
-});
-
-
-
-=======
->>>>>>> a6afe61ff5a8bc1384b95402c686ea5719154ce6
  /**
  * Route to get categoria_id_option_list records
  * @GET /components_data/categoria_id_option_list
@@ -166,29 +139,6 @@ queryParams['lookup_dependencia_id'] = req.query.lookup_dependencia_id;
 
 
 
-<<<<<<< HEAD
- /**
- * Route to check if field value already exist in a Trabajadores table
- * @GET /components_data/trabajadores_usuario_exist/{fieldvalue}
- */
-router.get('/trabajadores_usuario_exist/:fieldvalue', async (req, res) => {
-	try{
-		let val = req.params.fieldvalue
-		let count = await DB.Trabajadores.count({ where:{ 'usuario': val } });
-		if(count > 0){
-			return res.ok("true");
-		}
-		return res.ok("false");
-	}
-	catch(err){
-		return res.serverError(err);
-	}
-});
-
-
-
-=======
->>>>>>> a6afe61ff5a8bc1384b95402c686ea5719154ce6
  /**
  * Route to get user_role_id_option_list records
  * @GET /components_data/user_role_id_option_list

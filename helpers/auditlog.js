@@ -10,7 +10,7 @@ async function writeToDBLog (req, payload) {
 
 		const reqId = req.params.recid || ""; // get rec id from url if available
 		const recId = (payload.recid || reqId).toString(); //if array, convert to string
-		const  userId = req.user.idusuario || null;
+		const  userId = req.user.cedula || null;
 		
 		const oldValues = payload.oldValues || null;
 		const newValues = payload.newValues || null;

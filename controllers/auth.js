@@ -34,7 +34,7 @@ router.post('/login', [
 		}
 		
 		
-		req.writeToAuditLog({ recid: user['idusuario'] });
+		req.writeToAuditLog({ recid: user['cedula'] });
 		let loginData = await getUserLoginData(user);
 		return res.ok(loginData);
 
@@ -67,7 +67,7 @@ router.post('/forgotpassword', [
 			return res.notFound("Email not registered");
 		}
 		await sendPasswordResetLink(user);
-		req.writeToAuditLog({ recid: user['idusuario'] });
+		req.writeToAuditLog({ recid: user['cedula'] });
 
 		
 		return res.ok("We have emailed your password reset link!");
@@ -95,7 +95,7 @@ router.post('/resetpassword', [
 		const token = req.body.token;
 		const userid = getUserIDFromJwt(token);
 		const password = req.body.password;
-		const where = {idusuario: userid }
+		const where = {cedula: userid }
 		const record = await DB.Trabajadores.findOne({where: where});
 		if(!record){
 			return res.notFound("User not found");
@@ -103,7 +103,7 @@ router.post('/resetpassword', [
 		const newPassword = utils.passwordHash(password);
 		const modeldata = { contrasena: newPassword }
 		await DB.Trabajadores.update(modeldata, {where: where});
-		req.writeToAuditLog({ recid: user['idusuario'] });
+		req.writeToAuditLog({ recid: user['cedula'] });
 
 		
 		return res.ok("Password changed");
@@ -152,7 +152,7 @@ async function sendPasswordResetLink(user){
  */
 async function getUserLoginData(user){
 	const expiresIn = config.auth.jwtDuration + 'm' //in minutes;
-	const userid = user.idusuario;
+	const userid = user.cedula;
 	const token = jwt.sign({ sub: userid }, config.auth.apiTokenSecret, { expiresIn });
 	return { token }; //return user object and token
 }
@@ -165,7 +165,7 @@ async function getUserLoginData(user){
  */
 function generateUserToken(user){
 	const expiresIn = '10m' //in minutes;
-	const userid = user.idusuario;
+	const userid = user.cedula;
 	const token = jwt.sign({ sub: userid }, config.auth.userTokenSecret, { expiresIn });
 	return token;
 }

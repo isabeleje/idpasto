@@ -37,12 +37,6 @@ Trabajadores.belongsTo(Dependencias, { foreignKey: 'dependencia_id', as: 'depend
 
 Trabajadores.belongsTo(Subdependencias, { foreignKey: 'subdependencia_id', as: 'subdependencias3' });
 
-Trabajadores.belongsTo(Categorias, { foreignKey: 'categoria_id', as: 'categorias4' });
-
-Trabajadores.belongsTo(Dependencias, { foreignKey: 'dependencia_id', as: 'dependencias4' });
-
-Trabajadores.belongsTo(Subdependencias, { foreignKey: 'subdependencia_id', as: 'subdependencias4' });
-
 
 const op = Sequelize.Op;
 const raw = Sequelize.literal; // use to include raw expression

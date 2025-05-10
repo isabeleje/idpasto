@@ -69,7 +69,7 @@ router.get(['/', '/index/:fieldname?/:fieldvalue?'], async (req, res) => {
 		query.raw = true;
 		query.where = where;
 		query.replacements = replacements;
-		query.order = DB.getOrderBy(req, 'idusuario', 'desc');
+		query.order = DB.getOrderBy(req, 'cedula', 'desc');
 		if(req.query.export){
 			query.attributes = DB.Trabajadores.exportListFields();
 			let records = await DB.Trabajadores.findAll(query);
@@ -177,7 +177,7 @@ router.get('/view/:recid', async (req, res) => {
 		})
 
 		query.include = joinTables;
-		where[DB.op.and] = DB.raw('trabajadores.idusuario = :recid');
+		where[DB.op.and] = DB.raw('trabajadores.cedula = :recid');
 		query.replacements = {
 			recid
 		}
@@ -203,23 +203,11 @@ router.get('/view/:recid', async (req, res) => {
  */
 router.post('/add/', 
 	[
-		body('cedula').not().isEmpty().isNumeric(),
-		body('nombres').not().isEmpty(),
-		body('apellidos').not().isEmpty(),
-		body('grupo_sanguineo').not().isEmpty(),
 		body('foto').optional({nullable: true, checkFalsy: true}),
 		body('email').not().isEmpty().isEmail(),
-		body('cargo').not().isEmpty(),
-		body('categoria_id').not().isEmpty(),
-		body('dependencia_id').not().isEmpty(),
-		body('subdependencia_id').not().isEmpty(),
 		body('usuario').not().isEmpty(),
 		body('contrasena').not().isEmpty(),
 		body('confirm_password', 'Passwords do not match').custom((value, {req}) => (value === req.body.contrasena)),
-		body('user_role_id').optional({nullable: true, checkFalsy: true}),
-		body('estado').not().isEmpty(),
-		body('estadocarnet').not().isEmpty(),
-		body('observaciones').optional({nullable: true, checkFalsy: true}),
 	], validateFormData
 , async function (req, res) {
 	try{
@@ -229,12 +217,6 @@ router.post('/add/',
 		// set default role for user
 		const roleId =  await DB.Roles.findValue('role_id', {role_name: 'Admin'});
 		modeldata['user_role_id'] = roleId;
-		
-		// check if cedula already exist.
-		let cedulaCount = await DB.Trabajadores.count({ where:{ 'cedula': modeldata.cedula } });
-		if(cedulaCount > 0){
-			return res.badRequest(`${modeldata.cedula} already exist.`);
-		}
 		
 		// check if email already exist.
 		let emailCount = await DB.Trabajadores.count({ where:{ 'email': modeldata.email } });
@@ -257,7 +239,7 @@ router.post('/add/',
 		//save Trabajadores record
 		let record = await DB.Trabajadores.create(modeldata);
 		//await record.reload(); //reload the record from database
-		const recid =  record['idusuario'];
+		const recid =  record['cedula'];
 		const newValues = JSON.stringify(record); 
 		req.writeToAuditLog({ recid, oldValues: null, newValues });
 		
@@ -277,7 +259,7 @@ router.get('/edit/:recid', async (req, res) => {
 		const recid = req.params.recid;
 		const query = {};
 		const where = {};
-		where['idusuario'] = recid;
+		where['cedula'] = recid;
 		query.raw = true;
 		query.where = where;
 		query.attributes = DB.Trabajadores.editFields();
@@ -305,7 +287,6 @@ router.post('/edit/:recid',
 		body('apellidos').optional({nullable: true}).not().isEmpty(),
 		body('grupo_sanguineo').optional({nullable: true}).not().isEmpty(),
 		body('foto').optional({nullable: true, checkFalsy: true}),
-		body('email').optional({nullable: true}).not().isEmpty().isEmail(),
 		body('cargo').optional({nullable: true}).not().isEmpty(),
 		body('categoria_id').optional({nullable: true}).not().isEmpty(),
 		body('dependencia_id').optional({nullable: true}).not().isEmpty(),
@@ -322,24 +303,14 @@ router.post('/edit/:recid',
 		let modeldata = req.getValidFormData({ includeOptionals: true });
 		
 		// check if cedula already exist.
-		let cedulaCount = await DB.Trabajadores.count({where:{'cedula': modeldata.cedula, 'idusuario': {[DB.op.ne]: recid} }});
+		let cedulaCount = await DB.Trabajadores.count({where:{'cedula': modeldata.cedula, 'cedula': {[DB.op.ne]: recid} }});
 		if(cedulaCount > 0){
 			return res.badRequest(`${modeldata.cedula} already exist.`);
 		}
 
-<<<<<<< HEAD
-		
-		// check if email already exist.
-		let emailCount = await DB.Trabajadores.count({where:{'email': modeldata.email, 'idusuario': {[DB.op.ne]: recid} }});
-		if(emailCount > 0){
-			return res.badRequest(`${modeldata.email} already exist.`);
-		}
-
-=======
->>>>>>> a6afe61ff5a8bc1384b95402c686ea5719154ce6
 		
 		// check if usuario already exist.
-		let usuarioCount = await DB.Trabajadores.count({where:{'usuario': modeldata.usuario, 'idusuario': {[DB.op.ne]: recid} }});
+		let usuarioCount = await DB.Trabajadores.count({where:{'usuario': modeldata.usuario, 'cedula': {[DB.op.ne]: recid} }});
 		if(usuarioCount > 0){
 			return res.badRequest(`${modeldata.usuario} already exist.`);
 		}
@@ -351,7 +322,7 @@ router.post('/edit/:recid',
 		}
 		const query = {};
 		const where = {};
-		where['idusuario'] = recid;
+		where['cedula'] = recid;
 		query.raw = true;
 		query.where = where;
 		query.attributes = DB.Trabajadores.editFields();
@@ -383,7 +354,7 @@ router.get('/delete/:recid', async (req, res) => {
 		const recid = (req.params.recid || '').split(',');
 		const query = {};
 		const where = {};
-		where['idusuario'] = recid;
+		where['cedula'] = recid;
 		query.raw = true;
 		query.where = where;
 		let records = await DB.Trabajadores.findAll(query);
@@ -391,7 +362,7 @@ router.get('/delete/:recid', async (req, res) => {
 			//perform action on each record before delete
 			const oldValues = JSON.stringify(record); //for audit trail
 			uploader.deleteRecordFiles(record.foto, 'foto'); //delete file after record delete
-			req.writeToAuditLog({ recid: record['idusuario'], oldValues });
+			req.writeToAuditLog({ recid: record['cedula'], oldValues });
 
 		});
 		await DB.Trabajadores.destroy(query);
@@ -455,7 +426,7 @@ router.get('/impresion/:fieldname?/:fieldvalue?', async (req, res) => {
 		query.raw = true;
 		query.where = where;
 		query.replacements = replacements;
-		query.order = DB.getOrderBy(req, 'idusuario', 'desc');
+		query.order = DB.getOrderBy(req, 'cedula', 'desc');
 		query.attributes = DB.Trabajadores.impresionFields();
 		let page = parseInt(req.query.page) || 1;
 		let limit = parseInt(req.query.limit) || 10;
@@ -477,7 +448,7 @@ router.get('/editimpresion/:recid', async (req, res) => {
 		const recid = req.params.recid;
 		const query = {};
 		const where = {};
-		where['idusuario'] = recid;
+		where['cedula'] = recid;
 		query.raw = true;
 		query.where = where;
 		query.attributes = DB.Trabajadores.editimpresionFields();
@@ -507,7 +478,7 @@ router.post('/editimpresion/:recid',
 		let modeldata = req.getValidFormData({ includeOptionals: true });
 		const query = {};
 		const where = {};
-		where['idusuario'] = recid;
+		where['cedula'] = recid;
 		query.raw = true;
 		query.where = where;
 		query.attributes = DB.Trabajadores.editimpresionFields();
@@ -527,55 +498,16 @@ router.post('/editimpresion/:recid',
 		return res.serverError(err);
 	}
 });
-
-
-/**
- * Route to view Trabajadores record
- * @GET /trabajadores/view/{recid}
- */
-router.get('/vistaid/:recid', async (req, res) => {
+router.get('/funcionarios', async (req, res) => {  
 	try{
-		const recid = req.params.recid || null;
-		const query = {}
-		const where = {}
-		const joinTables = []; // hold list of join tables
-		joinTables.push({
-			model: DB.Categorias,
-			required: true,
-			as: 'categorias',
-			attributes: [], //already set via model class
-		})
-
-		joinTables.push({
-			model: DB.Dependencias,
-			required: true,
-			as: 'dependencias',
-			attributes: [], //already set via model class
-		})
-
-		joinTables.push({
-			model: DB.Subdependencias,
-			required: true,
-			as: 'subdependencias',
-			attributes: [], //already set via model class
-		})
-
-		query.include = joinTables;
-		where[DB.op.and] = DB.raw('trabajadores.idusuario = :recid');
-		query.replacements = {
-			recid
+		let sqltext = "SELECT column FROM table where column=:param1";
+		let queryParams = {
+			param1: "value"
 		}
-
-		query.raw = true;
-		query.where = where;
-		query.attributes = DB.Trabajadores.vistaidFields();
-		let record = await DB.Trabajadores.findOne(query);
-		if(!record){
-			return res.notFound();
-		}
-		return res.ok(record);
+		let records = await DB.rawQueryList(sqltext, queryParams);
+		return res.ok(records);
 	}
-	catch(err){
+	catch(err) {
 		return res.serverError(err);
 	}
 });

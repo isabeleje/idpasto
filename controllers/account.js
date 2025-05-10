@@ -15,10 +15,10 @@ const router = Router();
  */
 router.get(['/','/index'], async (req, res) => {
 	try{
-		let recid = req.user.idusuario;
+		let recid = req.user.cedula;
 		let query = {};
 		let where = {};
-		where['idusuario'] = recid;
+		where['cedula'] = recid;
 		query.raw = true;
 		query.where = where;
 		query.attributes = DB.Trabajadores.accountviewFields();
@@ -38,10 +38,10 @@ router.get(['/','/index'], async (req, res) => {
  */
 router.get(['/edit'], async (req, res) => {
 	try{
-		const recid = req.user.idusuario;
+		const recid = req.user.cedula;
 		const query = {};
 		const where = {};
-		where['idusuario'] = recid;
+		where['cedula'] = recid;
 		query.raw = true;
 		query.where = where;
 		query.attributes = DB.Trabajadores.accounteditFields();
@@ -68,7 +68,7 @@ router.post(['/edit'],
 	], validateFormData
 , async (req, res) => {
 	try{
-		const recid = req.user.idusuario;
+		const recid = req.user.cedula;
 		let modeldata = req.getValidFormData({ includeOptionals: true });
         // move uploaded file from temp directory to destination directory
 		if(modeldata.foto !== undefined) {
@@ -77,7 +77,7 @@ router.post(['/edit'],
 		}
 		const query = {};
 		const where = {};
-		where['idusuario'] = recid;
+		where['cedula'] = recid;
 		query.raw = true;
 		query.where = where;
 		query.attributes = DB.Trabajadores.accounteditFields();
@@ -120,10 +120,10 @@ router.post('/changepassword' ,
 		let oldPassword = req.body.oldpassword;
 		let newPassword = req.body.newpassword;
 
-		let userId = req.user.idusuario;
+		let userId = req.user.cedula;
 		let query = {};
 		let where = {
-			idusuario: userId,
+			cedula: userId,
 		};
 		query.raw = true;
 		query.where = where;
