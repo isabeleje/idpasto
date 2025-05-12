@@ -127,12 +127,12 @@ class Trabajadores extends BaseModel {
 
 	static editFields() {
 		return [
-			'pin', 
 			'cedula', 
 			'nombres', 
 			'apellidos', 
 			'grupo_sanguineo', 
 			'foto', 
+			'email', 
 			'cargo', 
 			'categoria_id', 
 			'dependencia_id', 
