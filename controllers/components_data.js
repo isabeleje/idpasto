@@ -212,12 +212,12 @@ router.get('/getcount_subdependencias', async (req, res) => {
 
 
  /**
- * Route to getcount_totalentregados value
- * @GET /components_data/getcount_totalentregados
+ * Route to getcount_pendientesdeentrega value
+ * @GET /components_data/getcount_pendientesdeentrega
  */
-router.get('/getcount_totalentregados', async (req, res) => {
+router.get('/getcount_pendientesdeentrega', async (req, res) => {
 	try{
-		let sqltext = `SELECT COUNT(*) AS num FROM carnetentregados` ;
+		let sqltext = `SELECT COUNT(*) AS num FROM pendientesentrega` ;
 		
 		let value = await DB.rawQueryValue(sqltext);
 		return res.ok(value.toString());
@@ -230,12 +230,12 @@ router.get('/getcount_totalentregados', async (req, res) => {
 
 
  /**
- * Route to getcount_pendientesdeentrega value
- * @GET /components_data/getcount_pendientesdeentrega
+ * Route to getcount_totalentregados value
+ * @GET /components_data/getcount_totalentregados
  */
-router.get('/getcount_pendientesdeentrega', async (req, res) => {
+router.get('/getcount_totalentregados', async (req, res) => {
 	try{
-		let sqltext = `SELECT COUNT(*) AS num FROM pendientesentrega` ;
+		let sqltext = `SELECT COUNT(*) AS num FROM carnetentregados` ;
 		
 		let value = await DB.rawQueryValue(sqltext);
 		return res.ok(value.toString());
