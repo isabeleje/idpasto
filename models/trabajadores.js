@@ -7,7 +7,7 @@ class Trabajadores extends BaseModel {
 			{
 				
 				pin: { type:Sequelize.STRING  ,defaultValue: Sequelize.literal('DEFAULT') },
-				cedula: { type: Sequelize.INTEGER, primaryKey: true, defaultValue: Sequelize.literal('DEFAULT') },
+				cedula: { type:Sequelize.INTEGER , allowNull: false ,defaultValue: Sequelize.literal('DEFAULT') },
 				nombres: { type:Sequelize.STRING , allowNull: false ,defaultValue: Sequelize.literal('DEFAULT') },
 				apellidos: { type:Sequelize.STRING , allowNull: false ,defaultValue: Sequelize.literal('DEFAULT') },
 				cargo: { type:Sequelize.STRING , allowNull: false ,defaultValue: Sequelize.literal('DEFAULT') },
@@ -24,7 +24,8 @@ class Trabajadores extends BaseModel {
 				user_role_id: { type:Sequelize.INTEGER  ,defaultValue: Sequelize.literal('DEFAULT') },
 				date_created: { type:Sequelize.DATE   },
 				date_updated: { type:Sequelize.DATE   },
-				estadocarnet: { type:Sequelize.STRING  ,defaultValue: Sequelize.literal('DEFAULT') }
+				estadocarnet: { type:Sequelize.STRING  ,defaultValue: Sequelize.literal('DEFAULT') },
+				idusuario: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true }
 			}, 
 			{ 
 				sequelize,
@@ -49,6 +50,7 @@ class Trabajadores extends BaseModel {
 			Sequelize.literal("subdependencias.subdependencia AS subdependencias_subdependencia"), 
 			Sequelize.literal('trabajadores.foto AS foto'), 
 			Sequelize.literal('trabajadores.estado AS estado'), 
+			Sequelize.literal('trabajadores.idusuario AS idusuario'), 
 			Sequelize.literal("categorias.id AS categorias_id"), 
 			Sequelize.literal("dependencias.id AS dependencias_id"), 
 			Sequelize.literal("subdependencias.id AS subdependencias_id")
@@ -67,6 +69,7 @@ class Trabajadores extends BaseModel {
 			Sequelize.literal("subdependencias.subdependencia AS subdependencias_subdependencia"), 
 			Sequelize.literal('trabajadores.foto AS foto'), 
 			Sequelize.literal('trabajadores.estado AS estado'), 
+			Sequelize.literal('trabajadores.idusuario AS idusuario'), 
 			Sequelize.literal("categorias.id AS categorias_id"), 
 			Sequelize.literal("dependencias.id AS dependencias_id"), 
 			Sequelize.literal("subdependencias.id AS subdependencias_id")
@@ -89,10 +92,10 @@ class Trabajadores extends BaseModel {
 			Sequelize.literal("subdependencias.subdependencia AS subdependencias_subdependencia"), 
 			Sequelize.literal('trabajadores.estado AS estado'), 
 			Sequelize.literal('trabajadores.observaciones AS observaciones'), 
-			Sequelize.literal('trabajadores.foto AS foto'), 
 			Sequelize.literal("categorias.id AS categorias_id"), 
 			Sequelize.literal("dependencias.id AS dependencias_id"), 
-			Sequelize.literal("subdependencias.id AS subdependencias_id")
+			Sequelize.literal("subdependencias.id AS subdependencias_id"), 
+			Sequelize.literal('trabajadores.idusuario AS idusuario')
 		];
 	}
 
@@ -102,7 +105,7 @@ class Trabajadores extends BaseModel {
 			'grupo_sanguineo', 
 			'email', 
 			'usuario', 
-			'cedula'
+			'idusuario'
 		];
 	}
 
@@ -117,7 +120,8 @@ class Trabajadores extends BaseModel {
 			'email', 
 			'estado', 
 			Sequelize.literal('estadoCarnet AS estadocarnet'), 
-			'observaciones'
+			'observaciones', 
+			'idusuario'
 		];
 	}
 
@@ -137,7 +141,8 @@ class Trabajadores extends BaseModel {
 			'user_role_id', 
 			'estado', 
 			Sequelize.literal('estadoCarnet AS estadocarnet'), 
-			'observaciones'
+			'observaciones', 
+			'idusuario'
 		];
 	}
 
@@ -148,6 +153,21 @@ class Trabajadores extends BaseModel {
 			Sequelize.literal("subdependencias.subdependencia AS subdependencias_subdependencia"), 
 			Sequelize.literal('trabajadores.foto AS foto'), 
 			Sequelize.literal('trabajadores.estadoCarnet AS estadocarnet'), 
+			Sequelize.literal('trabajadores.idusuario AS idusuario'), 
+			Sequelize.literal("categorias.id AS categorias_id"), 
+			Sequelize.literal("dependencias.id AS dependencias_id"), 
+			Sequelize.literal("subdependencias.id AS subdependencias_id")
+		];
+	}
+
+	static exportImpresionFields() {
+		return [
+			Sequelize.literal('trabajadores.nombres AS nombres'), 
+			Sequelize.literal('trabajadores.apellidos AS apellidos'), 
+			Sequelize.literal("subdependencias.subdependencia AS subdependencias_subdependencia"), 
+			Sequelize.literal('trabajadores.foto AS foto'), 
+			Sequelize.literal('trabajadores.estadoCarnet AS estadocarnet'), 
+			Sequelize.literal('trabajadores.idusuario AS idusuario'), 
 			Sequelize.literal("categorias.id AS categorias_id"), 
 			Sequelize.literal("dependencias.id AS dependencias_id"), 
 			Sequelize.literal("subdependencias.id AS subdependencias_id")
@@ -156,7 +176,8 @@ class Trabajadores extends BaseModel {
 
 	static editimpresionFields() {
 		return [
-			Sequelize.literal('estadoCarnet AS estadocarnet')
+			Sequelize.literal('estadoCarnet AS estadocarnet'), 
+			'idusuario'
 		];
 	}
 

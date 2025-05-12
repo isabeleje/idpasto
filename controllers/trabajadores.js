@@ -9,6 +9,7 @@ import { fileUploadMiddleware } from '../helpers/upload_middleware.js';
 import validateFormData from '../helpers/validate_form.js';
 import DB from '../models/db.js';
 import exportListPage from '../exports/trabajadores_list.js';
+import exportImpresionPage from '../exports/trabajadores_impresion.js';
 
 
 const router = Router();
@@ -69,7 +70,7 @@ router.get(['/', '/index/:fieldname?/:fieldvalue?'], async (req, res) => {
 		query.raw = true;
 		query.where = where;
 		query.replacements = replacements;
-		query.order = DB.getOrderBy(req, 'cedula', 'desc');
+		query.order = DB.getOrderBy(req, 'idusuario', 'desc');
 		if(req.query.export){
 			query.attributes = DB.Trabajadores.exportListFields();
 			let records = await DB.Trabajadores.findAll(query);
@@ -177,7 +178,7 @@ router.get('/view/:recid', async (req, res) => {
 		})
 
 		query.include = joinTables;
-		where[DB.op.and] = DB.raw('trabajadores.cedula = :recid');
+		where[DB.op.and] = DB.raw('trabajadores.idusuario = :recid');
 		query.replacements = {
 			recid
 		}
@@ -203,20 +204,11 @@ router.get('/view/:recid', async (req, res) => {
  */
 router.post('/add/', 
 	[
-		body('cedula').not().isEmpty().isNumeric(),
-		body('nombres').not().isEmpty(),
-		body('apellidos').not().isEmpty(),
-		body('grupo_sanguineo').not().isEmpty(),
 		body('foto').optional({nullable: true, checkFalsy: true}),
 		body('email').not().isEmpty().isEmail(),
-		body('cargo').not().isEmpty(),
 		body('usuario').not().isEmpty(),
 		body('contrasena').not().isEmpty(),
 		body('confirm_password', 'Passwords do not match').custom((value, {req}) => (value === req.body.contrasena)),
-		body('user_role_id').optional({nullable: true, checkFalsy: true}),
-		body('estado').not().isEmpty(),
-		body('estadocarnet').not().isEmpty(),
-		body('observaciones').optional({nullable: true, checkFalsy: true}),
 	], validateFormData
 , async function (req, res) {
 	try{
@@ -226,12 +218,6 @@ router.post('/add/',
 		// set default role for user
 		const roleId =  await DB.Roles.findValue('role_id', {role_name: 'Admin'});
 		modeldata['user_role_id'] = roleId;
-		
-		// check if cedula already exist.
-		let cedulaCount = await DB.Trabajadores.count({ where:{ 'cedula': modeldata.cedula } });
-		if(cedulaCount > 0){
-			return res.badRequest(`${modeldata.cedula} already exist.`);
-		}
 		
 		// check if email already exist.
 		let emailCount = await DB.Trabajadores.count({ where:{ 'email': modeldata.email } });
@@ -254,7 +240,7 @@ router.post('/add/',
 		//save Trabajadores record
 		let record = await DB.Trabajadores.create(modeldata);
 		//await record.reload(); //reload the record from database
-		const recid =  record['cedula'];
+		const recid =  record['idusuario'];
 		const newValues = JSON.stringify(record); 
 		req.writeToAuditLog({ recid, oldValues: null, newValues });
 		
@@ -274,7 +260,7 @@ router.get('/edit/:recid', async (req, res) => {
 		const recid = req.params.recid;
 		const query = {};
 		const where = {};
-		where['cedula'] = recid;
+		where['idusuario'] = recid;
 		query.raw = true;
 		query.where = where;
 		query.attributes = DB.Trabajadores.editFields();
@@ -318,14 +304,14 @@ router.post('/edit/:recid',
 		let modeldata = req.getValidFormData({ includeOptionals: true });
 		
 		// check if cedula already exist.
-		let cedulaCount = await DB.Trabajadores.count({where:{'cedula': modeldata.cedula, 'cedula': {[DB.op.ne]: recid} }});
+		let cedulaCount = await DB.Trabajadores.count({where:{'cedula': modeldata.cedula, 'idusuario': {[DB.op.ne]: recid} }});
 		if(cedulaCount > 0){
 			return res.badRequest(`${modeldata.cedula} already exist.`);
 		}
 
 		
 		// check if usuario already exist.
-		let usuarioCount = await DB.Trabajadores.count({where:{'usuario': modeldata.usuario, 'cedula': {[DB.op.ne]: recid} }});
+		let usuarioCount = await DB.Trabajadores.count({where:{'usuario': modeldata.usuario, 'idusuario': {[DB.op.ne]: recid} }});
 		if(usuarioCount > 0){
 			return res.badRequest(`${modeldata.usuario} already exist.`);
 		}
@@ -337,7 +323,7 @@ router.post('/edit/:recid',
 		}
 		const query = {};
 		const where = {};
-		where['cedula'] = recid;
+		where['idusuario'] = recid;
 		query.raw = true;
 		query.where = where;
 		query.attributes = DB.Trabajadores.editFields();
@@ -369,7 +355,7 @@ router.get('/delete/:recid', async (req, res) => {
 		const recid = (req.params.recid || '').split(',');
 		const query = {};
 		const where = {};
-		where['cedula'] = recid;
+		where['idusuario'] = recid;
 		query.raw = true;
 		query.where = where;
 		let records = await DB.Trabajadores.findAll(query);
@@ -377,7 +363,7 @@ router.get('/delete/:recid', async (req, res) => {
 			//perform action on each record before delete
 			const oldValues = JSON.stringify(record); //for audit trail
 			uploader.deleteRecordFiles(record.foto, 'foto'); //delete file after record delete
-			req.writeToAuditLog({ recid: record['cedula'], oldValues });
+			req.writeToAuditLog({ recid: record['idusuario'], oldValues });
 
 		});
 		await DB.Trabajadores.destroy(query);
@@ -441,7 +427,12 @@ router.get('/impresion/:fieldname?/:fieldvalue?', async (req, res) => {
 		query.raw = true;
 		query.where = where;
 		query.replacements = replacements;
-		query.order = DB.getOrderBy(req, 'cedula', 'desc');
+		query.order = DB.getOrderBy(req, 'idusuario', 'desc');
+		if(req.query.export){
+			query.attributes = DB.Trabajadores.exportImpresionFields();
+			let records = await DB.Trabajadores.findAll(query);
+			return exportImpresionPage(records, req, res)
+		}
 		query.attributes = DB.Trabajadores.impresionFields();
 		let page = parseInt(req.query.page) || 1;
 		let limit = parseInt(req.query.limit) || 10;
@@ -463,7 +454,7 @@ router.get('/editimpresion/:recid', async (req, res) => {
 		const recid = req.params.recid;
 		const query = {};
 		const where = {};
-		where['cedula'] = recid;
+		where['idusuario'] = recid;
 		query.raw = true;
 		query.where = where;
 		query.attributes = DB.Trabajadores.editimpresionFields();
@@ -493,7 +484,7 @@ router.post('/editimpresion/:recid',
 		let modeldata = req.getValidFormData({ includeOptionals: true });
 		const query = {};
 		const where = {};
-		where['cedula'] = recid;
+		where['idusuario'] = recid;
 		query.raw = true;
 		query.where = where;
 		query.attributes = DB.Trabajadores.editimpresionFields();

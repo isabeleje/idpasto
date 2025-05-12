@@ -17,7 +17,7 @@ export default function () {
 			if(userId){
 				let user = await DB.Trabajadores.findOne({
 					where: { 
-						cedula: userId 
+						idusuario: userId 
 					}, 
 					attributes: { 
 						exclude:['contrasena', 'otp_code', 'otp_date', 'email_verified_at']

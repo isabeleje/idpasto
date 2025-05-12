@@ -3,7 +3,7 @@ import passport from 'passport';
 import Rbac from './rbac.js';
 import passportLogin from './passport-auth.js';
 
-const publicPages = ['auth', 'components_data', 'fileuploader', 's3uploader', 'carnetentregados','listosimpresion','pendientesactualizar','pendientesentrega','public','public/view','trabajadores/view'];
+const publicPages = ['auth', 'components_data', 'fileuploader', 's3uploader', 'carnetentregados','listosimpresion','pendientesactualizar','pendientesentrega','trabajadores/impresion','trabajadores/editimpresion'];
 
 async function passportJwtLogin (req, res, next) {
     passportLogin();

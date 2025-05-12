@@ -16,8 +16,7 @@ async function exportListPage(records, req, res) {
 				{ header: "Dependencias Nombre", key: "dependencias_nombre" },
 				{ header: "Subdependencias Subdependencia", key: "subdependencias_subdependencia" },
 				{ header: "Pin", key: "pin" },
-				{ header: "Grupo Sanguineo", key: "grupo_sanguineo" },
-				{ header: "Estadocarnet", key: "estadocarnet" }
+				{ header: "Grupo Sanguineo", key: "grupo_sanguineo" }
 		]
 		let filename = "trabajadoresimpresion-report";
 
