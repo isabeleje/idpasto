@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
+
+import utils from '../helpers/utils.js';
 import uploader from '../helpers/uploader.js';
 
 import Rbac from '../helpers/rbac.js';
@@ -103,5 +105,42 @@ router.get('/currentuserdata', async function (req, res)
 	const pages = await rbac.getUserPages();
 	const roles = await rbac.getRoleName();
     return res.ok({ user, pages, roles });
+});
+/**
+ * Route to change user password
+ * @POST /account
+ */
+router.post('/changepassword' , 
+	[
+		body('oldpassword').not().isEmpty(),
+		body('newpassword').not().isEmpty(),
+		body('confirmpassword').not().isEmpty().custom((value, {req}) => (value === req.body.newpassword))
+	], validateFormData, async function (req, res) {
+	try{
+		let oldPassword = req.body.oldpassword;
+		let newPassword = req.body.newpassword;
+
+		let userId = req.user.idusuario;
+		let query = {};
+		let where = {
+			idusuario: userId,
+		};
+		query.raw = true;
+		query.where = where;
+		query.attributes = ['contrasena'];
+		let user = await DB.Trabajadores.findOne(query);
+		let currentPasswordHash = user.contrasena;
+		if(!utils.passwordVerify(oldPassword, currentPasswordHash)){
+			return res.badRequest("Current password is incorrect");
+		}
+		let modeldata = {
+			contrasena: utils.passwordHash(newPassword)
+		}
+		await DB.Trabajadores.update(modeldata, {where: where});
+		return res.ok("Password change completed");
+	}
+	catch(err){
+		return res.serverError(err);
+	}
 });
 export default router;
