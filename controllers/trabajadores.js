@@ -204,23 +204,11 @@ router.get('/view/:recid', async (req, res) => {
  */
 router.post('/add/', 
 	[
-		body('cedula').not().isEmpty().isNumeric(),
-		body('nombres').not().isEmpty(),
-		body('apellidos').not().isEmpty(),
-		body('grupo_sanguineo').not().isEmpty(),
 		body('foto').optional({nullable: true, checkFalsy: true}),
 		body('email').not().isEmpty().isEmail(),
-		body('cargo').not().isEmpty(),
-		body('categoria_id').not().isEmpty(),
-		body('dependencia_id').not().isEmpty(),
-		body('subdependencia_id').not().isEmpty(),
 		body('usuario').not().isEmpty(),
 		body('contrasena').not().isEmpty(),
 		body('confirm_password', 'Passwords do not match').custom((value, {req}) => (value === req.body.contrasena)),
-		body('user_role_id').optional({nullable: true, checkFalsy: true}),
-		body('estado').not().isEmpty(),
-		body('estadocarnet').not().isEmpty(),
-		body('observaciones').optional({nullable: true, checkFalsy: true}),
 	], validateFormData
 , async function (req, res) {
 	try{
@@ -230,12 +218,6 @@ router.post('/add/',
 		// set default role for user
 		const roleId =  await DB.Roles.findValue('role_id', {role_name: 'Admin'});
 		modeldata['user_role_id'] = roleId;
-		
-		// check if cedula already exist.
-		let cedulaCount = await DB.Trabajadores.count({ where:{ 'cedula': modeldata.cedula } });
-		if(cedulaCount > 0){
-			return res.badRequest(`${modeldata.cedula} already exist.`);
-		}
 		
 		// check if email already exist.
 		let emailCount = await DB.Trabajadores.count({ where:{ 'email': modeldata.email } });
@@ -305,7 +287,6 @@ router.post('/edit/:recid',
 		body('apellidos').optional({nullable: true}).not().isEmpty(),
 		body('grupo_sanguineo').optional({nullable: true}).not().isEmpty(),
 		body('foto').optional({nullable: true, checkFalsy: true}),
-		body('email').optional({nullable: true}).not().isEmpty().isEmail(),
 		body('cargo').optional({nullable: true}).not().isEmpty(),
 		body('categoria_id').optional({nullable: true}).not().isEmpty(),
 		body('dependencia_id').optional({nullable: true}).not().isEmpty(),
@@ -325,13 +306,6 @@ router.post('/edit/:recid',
 		let cedulaCount = await DB.Trabajadores.count({where:{'cedula': modeldata.cedula, 'idusuario': {[DB.op.ne]: recid} }});
 		if(cedulaCount > 0){
 			return res.badRequest(`${modeldata.cedula} already exist.`);
-		}
-
-		
-		// check if email already exist.
-		let emailCount = await DB.Trabajadores.count({where:{'email': modeldata.email, 'idusuario': {[DB.op.ne]: recid} }});
-		if(emailCount > 0){
-			return res.badRequest(`${modeldata.email} already exist.`);
 		}
 
 		

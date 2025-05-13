@@ -132,7 +132,6 @@ class Trabajadores extends BaseModel {
 			'apellidos', 
 			'grupo_sanguineo', 
 			'foto', 
-			'email', 
 			'cargo', 
 			'categoria_id', 
 			'dependencia_id', 

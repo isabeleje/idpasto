@@ -25,12 +25,12 @@ router.get('/iddependencia_option_list', async (req, res) => {
 
  /**
  * Route to check if field value already exist in a Trabajadores table
- * @GET /components_data/trabajadores_cedula_exist/{fieldvalue}
+ * @GET /components_data/trabajadores_email_exist/{fieldvalue}
  */
-router.get('/trabajadores_cedula_exist/:fieldvalue', async (req, res) => {
+router.get('/trabajadores_email_exist/:fieldvalue', async (req, res) => {
 	try{
 		let val = req.params.fieldvalue
-		let count = await DB.Trabajadores.count({ where:{ 'cedula': val } });
+		let count = await DB.Trabajadores.count({ where:{ 'email': val } });
 		if(count > 0){
 			return res.ok("true");
 		}
@@ -45,12 +45,32 @@ router.get('/trabajadores_cedula_exist/:fieldvalue', async (req, res) => {
 
  /**
  * Route to check if field value already exist in a Trabajadores table
- * @GET /components_data/trabajadores_email_exist/{fieldvalue}
+ * @GET /components_data/trabajadores_usuario_exist/{fieldvalue}
  */
-router.get('/trabajadores_email_exist/:fieldvalue', async (req, res) => {
+router.get('/trabajadores_usuario_exist/:fieldvalue', async (req, res) => {
 	try{
 		let val = req.params.fieldvalue
-		let count = await DB.Trabajadores.count({ where:{ 'email': val } });
+		let count = await DB.Trabajadores.count({ where:{ 'usuario': val } });
+		if(count > 0){
+			return res.ok("true");
+		}
+		return res.ok("false");
+	}
+	catch(err){
+		return res.serverError(err);
+	}
+});
+
+
+
+ /**
+ * Route to check if field value already exist in a Trabajadores table
+ * @GET /components_data/trabajadores_cedula_exist/{fieldvalue}
+ */
+router.get('/trabajadores_cedula_exist/:fieldvalue', async (req, res) => {
+	try{
+		let val = req.params.fieldvalue
+		let count = await DB.Trabajadores.count({ where:{ 'cedula': val } });
 		if(count > 0){
 			return res.ok("true");
 		}
@@ -111,26 +131,6 @@ router.get('/subdependencia_id_option_list', async (req, res) => {
 queryParams['lookup_dependencia_id'] = req.query.lookup_dependencia_id;
 		let records = await DB.rawQueryList(sqltext, queryParams,);
 		return res.ok(records);
-	}
-	catch(err){
-		return res.serverError(err);
-	}
-});
-
-
-
- /**
- * Route to check if field value already exist in a Trabajadores table
- * @GET /components_data/trabajadores_usuario_exist/{fieldvalue}
- */
-router.get('/trabajadores_usuario_exist/:fieldvalue', async (req, res) => {
-	try{
-		let val = req.params.fieldvalue
-		let count = await DB.Trabajadores.count({ where:{ 'usuario': val } });
-		if(count > 0){
-			return res.ok("true");
-		}
-		return res.ok("false");
 	}
 	catch(err){
 		return res.serverError(err);
